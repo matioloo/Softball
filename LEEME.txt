@@ -1,0 +1,8 @@
+Anotación de softball, versión 4.0
+
+Sube TODO el contenido de esta carpeta a la raíz del repositorio de GitHub
+(index.html, sw.js, manifest.webmanifest y las carpetas fonts e icons).
+
+Para publicar una versión nueva: sube los archivos nuevos encima de los antiguos.
+Los móviles la reciben solos la próxima vez que abran la app con conexión.
+Los partidos guardados en los móviles no se tocan.

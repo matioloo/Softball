@@ -1,0 +1,2229 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Anotación de softball</title>
+<meta name="theme-color" content="#14211A">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Softball">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>
+@font-face { font-family: "Barlow"; font-style: normal; font-weight: 400; font-display: swap; src: url("fonts/barlow-latin-400-normal.woff2") format("woff2"); }
+@font-face { font-family: "Barlow"; font-style: normal; font-weight: 500; font-display: swap; src: url("fonts/barlow-latin-500-normal.woff2") format("woff2"); }
+@font-face { font-family: "Barlow"; font-style: normal; font-weight: 600; font-display: swap; src: url("fonts/barlow-latin-600-normal.woff2") format("woff2"); }
+@font-face { font-family: "Barlow Condensed"; font-style: normal; font-weight: 500; font-display: swap; src: url("fonts/barlow-condensed-latin-500-normal.woff2") format("woff2"); }
+@font-face { font-family: "Barlow Condensed"; font-style: normal; font-weight: 600; font-display: swap; src: url("fonts/barlow-condensed-latin-600-normal.woff2") format("woff2"); }
+@font-face { font-family: "Barlow Condensed"; font-style: normal; font-weight: 700; font-display: swap; src: url("fonts/barlow-condensed-latin-700-normal.woff2") format("woff2"); }
+:root {
+  --chrome-bg: #E4E9E5;
+  --chrome-fg: #14211A;
+  --chrome-muted: #4D5E54;
+  --chrome-line: #B9C4BC;
+  --tabs-bg: #D3DBD5;
+  --tab-active-bg: #14211A;
+  --tab-active-fg: #FFFFFF;
+  --overlay: rgba(10, 20, 14, 0.55);
+  --panel-bg: #FFFFFF;
+  --panel-fg: #14211A;
+  --field-bg: #F3F6F4;
+  --btn-primary-bg: #000000;
+  --btn-primary-fg: #FFFFFF;
+  --btn-ghost-bg: #E4E9E5;
+  --focus: #1E6FD9;
+  /* La hoja es papel: se mantiene blanca y en tinta negra también en modo oscuro */
+  --paper: #FFFFFF;
+  --ink: #000000;
+  --paper-head: #D6D6D6;
+  --paper-faint: #8C8C8C;
+  --paper-auto: #F1F1F1;
+  --out-red: #C8102E;
+  --hit-green: #1E8E3E;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --chrome-bg: #16201B;
+    --chrome-fg: #E7EEE9;
+    --chrome-muted: #9FB0A6;
+    --chrome-line: #34433B;
+    --tabs-bg: #222E28;
+    --tab-active-bg: #E7EEE9;
+    --tab-active-fg: #16201B;
+    --overlay: rgba(0, 0, 0, 0.65);
+    --panel-bg: #1F2924;
+    --panel-fg: #EEF2EF;
+    --field-bg: #2A3630;
+    --btn-primary-bg: #EEF2EF;
+    --btn-primary-fg: #111A15;
+    --btn-ghost-bg: #2C3832;
+    --focus: #6EA8FF;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --chrome-bg: #16201B;
+  --chrome-fg: #E7EEE9;
+  --chrome-muted: #9FB0A6;
+  --chrome-line: #34433B;
+  --tabs-bg: #222E28;
+  --tab-active-bg: #E7EEE9;
+  --tab-active-fg: #16201B;
+  --overlay: rgba(0, 0, 0, 0.65);
+  --panel-bg: #1F2924;
+  --panel-fg: #EEF2EF;
+  --field-bg: #2A3630;
+  --btn-primary-bg: #EEF2EF;
+  --btn-primary-fg: #111A15;
+  --btn-ghost-bg: #2C3832;
+  --focus: #6EA8FF;
+  color-scheme: dark;
+}
+
+:root {
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+*, *::before, *::after { box-sizing: inherit; }
+html { height: 100%; background: var(--chrome-bg); scroll-padding-top: env(safe-area-inset-top, 0px); }
+body {
+  margin: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  overscroll-behavior: none;
+  background: var(--chrome-bg);
+  color: var(--chrome-fg);
+  font-family: "Barlow", "Helvetica Neue", Arial, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Pantallas */
+.view { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.view[hidden] { display: none; }
+.home {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 18px;
+  padding-left: max(18px, env(safe-area-inset-left, 0px));
+  padding-right: max(18px, env(safe-area-inset-right, 0px));
+}
+.home-inner { width: 100%; max-width: 440px; }
+.home-logo { display: block; width: 68px; height: 68px; }
+.home h1 { margin: 14px 0 2px; font: 700 34px/1.05 "Barlow Condensed", "Arial Narrow", Arial, sans-serif; }
+.home-lead { margin: 0 0 22px; font: 400 16px/1.4 "Barlow", Arial, sans-serif; color: var(--chrome-muted); }
+.home-btn {
+  width: 100%;
+  min-height: 70px;
+  margin-bottom: 10px;
+  padding: 13px 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  border: 1px solid var(--chrome-line);
+  border-radius: 14px;
+  background: var(--panel-bg);
+  color: var(--panel-fg);
+  text-align: left;
+}
+.home-btn strong { font: 600 19px/1.2 "Barlow", Arial, sans-serif; }
+.home-btn span { font: 400 14px/1.3 "Barlow", Arial, sans-serif; color: var(--chrome-muted); }
+.home-btn.primary { background: var(--btn-primary-bg); color: var(--btn-primary-fg); border-color: var(--btn-primary-bg); }
+.home-btn.primary span { color: inherit; opacity: 0.8; }
+.home-foot { margin: 18px 0 0; text-align: center; font: 400 12px "Barlow", Arial, sans-serif; color: var(--chrome-muted); }
+
+.list-head { flex: 1; min-width: 0; }
+.list-title { margin: 0; font: 600 19px/1.2 "Barlow", Arial, sans-serif; }
+.list-hint { margin: 2px 0 0; font: 400 13px/1.3 "Barlow", Arial, sans-serif; color: var(--chrome-muted); }
+.list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 10px;
+  padding-left: max(10px, env(safe-area-inset-left, 0px));
+  padding-right: max(10px, env(safe-area-inset-right, 0px));
+}
+.game { display: flex; align-items: stretch; gap: 8px; margin-bottom: 8px; }
+.game-main {
+  flex: 1;
+  min-width: 0;
+  min-height: 64px;
+  padding: 11px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid var(--chrome-line);
+  border-radius: 12px;
+  background: var(--panel-bg);
+  color: var(--panel-fg);
+  text-align: left;
+}
+.game-text { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.game-title { font: 600 16px/1.3 "Barlow", Arial, sans-serif; overflow-wrap: anywhere; }
+.game-sub { font: 400 13px/1.3 "Barlow", Arial, sans-serif; color: var(--chrome-muted); }
+.game-del {
+  flex: none;
+  padding: 0 14px;
+  border: 1px solid var(--chrome-line);
+  border-radius: 12px;
+  background: transparent;
+  color: var(--chrome-fg);
+  font: 600 14px "Barlow", Arial, sans-serif;
+}
+.check {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--chrome-line);
+  border-radius: 8px;
+  color: transparent;
+  font: 700 17px "Barlow", Arial, sans-serif;
+}
+.game-main[aria-pressed="true"] { border-color: var(--btn-primary-bg); }
+.game-main[aria-pressed="true"] .check { background: var(--btn-primary-bg); border-color: var(--btn-primary-bg); color: var(--btn-primary-fg); }
+.list-empty { padding: 48px 16px; text-align: center; color: var(--chrome-muted); font: 400 16px/1.4 "Barlow", Arial, sans-serif; }
+.list-actions {
+  flex: none;
+  display: flex;
+  gap: 8px;
+  padding: 10px;
+  border-top: 1px solid var(--chrome-line);
+}
+.list-actions[hidden] { display: none; }
+.list-actions .btn { flex: 1; }
+
+/* Hoja para imprimir o guardar en PDF */
+#printArea { display: none; }
+#printArea.measure { display: block; position: absolute; left: -30000px; top: 0; }
+.print-page { overflow: hidden; }
+.print-sheet { width: max-content; background: #FFFFFF; color: #000000; transform-origin: 0 0; }
+#printArea td.ab.next { background: none; box-shadow: none; }
+#printArea td.ord.next { background: var(--paper-head); }
+@media print {
+  @page { size: A4 landscape; margin: 8mm; }
+  :root { padding: 0; }
+  html, body { height: auto; overflow: visible; background: #FFFFFF; }
+  body { display: block; }
+  body > *:not(#printArea) { display: none !important; }
+  #printArea { display: block; position: static; }
+  .print-page { break-after: page; page-break-after: always; }
+  .print-page:last-child { break-after: auto; page-break-after: auto; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+
+/* Barra superior */
+.bar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  padding-left: max(10px, env(safe-area-inset-left, 0px));
+  padding-right: max(10px, env(safe-area-inset-right, 0px));
+  border-bottom: 1px solid var(--chrome-line);
+}
+.tabs {
+  flex: 1;
+  display: flex;
+  gap: 3px;
+  padding: 3px;
+  border-radius: 12px;
+  background: var(--tabs-bg);
+  min-width: 0;
+}
+.tab {
+  flex: 1;
+  min-width: 0;
+  min-height: 46px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--chrome-fg);
+  font: 600 18px/1.05 "Barlow Condensed", "Arial Narrow", Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 6px;
+}
+.tab[aria-selected="true"] { background: var(--tab-active-bg); color: var(--tab-active-fg); }
+.tab-team {
+  font: 400 12px/1.2 "Barlow", Arial, sans-serif;
+  opacity: 0.85;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.tool {
+  flex: none;
+  min-width: 46px;
+  min-height: 46px;
+  padding: 0 12px;
+  border: 1px solid var(--chrome-line);
+  border-radius: 12px;
+  background: transparent;
+  color: var(--chrome-fg);
+  font: 600 15px "Barlow", Arial, sans-serif;
+}
+.tool.icon { font-size: 22px; padding: 0; }
+button:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+/* Lienzo navegable */
+#stage {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  touch-action: none;
+}
+#paper {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: max-content;
+  transform-origin: 0 0;
+  will-change: transform;
+  background: var(--paper);
+  color: var(--ink);
+  padding: 22px 22px 26px;
+}
+
+/* Hoja */
+.game-head {
+  display: flex;
+  align-items: flex-end;
+  gap: 30px;
+  margin: 0 4px 16px;
+  font: 700 21px "Barlow Condensed", "Arial Narrow", Arial, sans-serif;
+}
+.hf { display: flex; align-items: flex-end; gap: 8px; }
+.hf .line {
+  min-height: 32px;
+  border-bottom: 2px solid var(--ink);
+  padding: 0 6px 2px;
+  font: 500 19px "Barlow", Arial, sans-serif;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.team { border: 3px solid var(--ink); border-radius: 8px; overflow: hidden; padding-bottom: 18px; }
+.team-head { display: flex; align-items: center; gap: 22px; margin-bottom: 10px; }
+.band {
+  background: var(--ink);
+  color: var(--paper);
+  font: 700 42px/1 "Barlow Condensed", "Arial Narrow", Arial, sans-serif;
+  letter-spacing: 0.04em;
+  padding: 10px 34px 8px 22px;
+}
+.team-name { display: flex; align-items: flex-end; gap: 8px; font: 700 21px "Barlow Condensed", "Arial Narrow", Arial, sans-serif; }
+.team-name .line {
+  min-height: 32px;
+  width: 380px;
+  border-bottom: 2px solid var(--ink);
+  padding: 0 6px 2px;
+  font: 500 19px "Barlow", Arial, sans-serif;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+table { border-collapse: collapse; table-layout: fixed; }
+.grid { margin: 0 10px; }
+.grid th {
+  height: 34px;
+  padding: 0;
+  border: 1.5px solid var(--ink);
+  background: var(--paper-head);
+  font: 700 17px "Barlow Condensed", "Arial Narrow", Arial, sans-serif;
+  text-align: center;
+}
+.grid td { border: 1.5px solid var(--ink); padding: 0; height: 30px; }
+.grid tr.r-top td.split { border-bottom: 1px dashed var(--paper-faint); }
+.grid tr.r-sub td.split { border-top: 1px dashed var(--paper-faint); }
+.grid td.ord {
+  background: var(--paper-head);
+  text-align: center;
+  font: 700 21px "Barlow Condensed", "Arial Narrow", Arial, sans-serif;
+}
+.grid td.num, .grid td.pos {
+  text-align: center;
+  font: 600 17px "Barlow Condensed", "Arial Narrow", Arial, sans-serif;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.grid td.name {
+  padding: 0 8px;
+  font: 500 16px "Barlow", Arial, sans-serif;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.grid td.subcell { padding: 0; }
+.subwrap { display: flex; height: 29px; }
+.subname {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  font: 500 15px "Barlow", Arial, sans-serif;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.inn {
+  flex: none;
+  width: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-left: 1px dashed var(--paper-faint);
+  font: 600 14px "Barlow Condensed", "Arial Narrow", Arial, sans-serif;
+  white-space: nowrap;
+}
+.ph { color: var(--paper-faint); font-weight: 400; }
+.grid td.ab { height: 60px; }
+.grid td.ab svg { display: block; width: 100%; height: 58px; }
+.grid td.stat { background: var(--paper-auto); text-align: center; font: 600 17px "Barlow Condensed", "Arial Narrow", Arial, sans-serif; }
+.grid td.ab.next { background: #FFF1A8; box-shadow: inset 0 0 0 3px #E0B400; }
+.grid td.ord.next { background: #FFE066; }
+.grid th.inning-cont { font-size: 14px; }
+
+.bottom { display: flex; align-items: flex-start; gap: 26px; margin: 20px 10px 0; }
+.mini th, .mini td {
+  height: 28px;
+  padding: 0 4px;
+  border: 1.5px solid var(--ink);
+  text-align: center;
+  font: 600 15px "Barlow Condensed", "Arial Narrow", Arial, sans-serif;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mini th { background: var(--paper-head); }
+.mini th.lead { background: var(--ink); color: var(--paper); text-align: left; font-size: 19px; padding: 0 10px; }
+.mini th.title { text-align: left; font-size: 17px; padding: 0 10px; }
+.mini td.rowlbl { text-align: left; font-weight: 700; padding-left: 10px; }
+.mini td.auto { background: var(--paper-auto); font-size: 16px; }
+.mini td.tot { font-weight: 700; }
+.mini td.pname { text-align: left; padding-left: 8px; font: 500 14px "Barlow", Arial, sans-serif; }
+.fld { cursor: pointer; }
+
+/* Panel de edición */
+#overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: calc(env(safe-area-inset-top, 0px) + 12px) 12px 12px;
+  background: var(--overlay);
+}
+#overlay[hidden] { display: none; }
+.panel {
+  width: 100%;
+  max-width: 480px;
+  max-height: calc(100% - 12px);
+  overflow-y: auto;
+  padding: 18px;
+  border-radius: 16px;
+  background: var(--panel-bg);
+  color: var(--panel-fg);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+}
+.panel-title { margin: 0 0 12px; font: 600 18px/1.3 "Barlow", Arial, sans-serif; }
+.panel-text { margin: 0 0 6px; font: 400 16px/1.45 "Barlow", Arial, sans-serif; }
+.panel input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid var(--chrome-line);
+  border-radius: 10px;
+  background: var(--field-bg);
+  color: var(--panel-fg);
+  font: 500 18px "Barlow", Arial, sans-serif;
+  -webkit-user-select: text;
+  user-select: text;
+}
+.panel input:focus { outline: 3px solid var(--focus); outline-offset: 1px; }
+.choices { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.choices.cols-4 { grid-template-columns: repeat(4, 1fr); }
+.choice {
+  min-height: 58px;
+  border: 1.5px solid var(--chrome-line);
+  border-radius: 10px;
+  background: var(--field-bg);
+  color: var(--panel-fg);
+  font: 700 22px/1 "Barlow Condensed", "Arial Narrow", Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 4px 2px;
+}
+.choice small { font: 400 11px/1.1 "Barlow", Arial, sans-serif; }
+.choice[aria-pressed="true"] { background: var(--btn-primary-bg); color: var(--btn-primary-fg); border-color: var(--btn-primary-bg); }
+.panel-actions { display: flex; gap: 10px; margin-top: 16px; justify-content: flex-end; }
+.btn {
+  min-height: 48px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 10px;
+  font: 600 17px "Barlow", Arial, sans-serif;
+}
+.btn.primary { background: var(--btn-primary-bg); color: var(--btn-primary-fg); }
+.btn.ghost { background: var(--btn-ghost-bg); color: var(--panel-fg); }
+.btn.danger { background: var(--out-red); color: #FFFFFF; }
+.btn.push-left { margin-right: auto; }
+.menu-list { display: flex; flex-direction: column; gap: 10px; }
+.menu-list .btn { width: 100%; text-align: left; }
+
+#toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 22px);
+  z-index: 30;
+  max-width: 90vw;
+  padding: 12px 18px;
+  border-radius: 12px;
+  background: var(--tab-active-bg);
+  color: var(--tab-active-fg);
+  font: 500 15px/1.35 "Barlow", Arial, sans-serif;
+  text-align: center;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, 16px);
+  transition: opacity 0.2s, transform 0.2s;
+}
+#toast.show { opacity: 1; transform: translate(-50%, 0); }
+#editor:not([hidden]) ~ #toast { bottom: calc(env(safe-area-inset-bottom, 0px) + 140px); }
+@media (prefers-reduced-motion: reduce) { #toast { transition: none; } }
+.grid th.colhead { cursor: pointer; }
+
+/* Pop-up de la casilla */
+#editor {
+  position: fixed;
+  inset: 0;
+  z-index: 25;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: calc(env(safe-area-inset-top, 0px) + 10px) 14px calc(env(safe-area-inset-bottom, 0px) + 12px);
+  background: var(--panel-bg);
+  color: var(--panel-fg);
+}
+#editor[hidden] { display: none; }
+.ed-top { display: flex; align-items: center; gap: 12px; }
+.ed-head { min-width: 0; }
+.ed-title { margin: 0; font: 600 19px/1.2 "Barlow", Arial, sans-serif; }
+.ed-sub { margin: 2px 0 0; font: 400 14px/1.3 "Barlow", Arial, sans-serif; color: var(--chrome-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ed-main { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; }
+.ed-main svg { display: block; height: auto; background: var(--paper); border: 2px solid var(--ink); border-radius: 4px; touch-action: manipulation; font-family: "Barlow Condensed", "Arial Narrow", Arial, sans-serif; }
+.ed-svg > :not([data-zone]) { pointer-events: none; }
+.ed-svg .hz { fill: rgba(0, 0, 0, 0); }
+.ed-svg .hb { fill: rgba(0, 0, 0, 0); }
+.ed-svg .hl { stroke: rgba(0, 0, 0, 0); stroke-width: 12; stroke-linecap: round; fill: none; }
+.ed-svg .hz:active, .ed-svg .hb:active { fill: rgba(30, 111, 217, 0.16); }
+.ed-svg .hl:active { stroke: rgba(30, 111, 217, 0.2); }
+.ed-svg .guide { stroke: #B5B5B5; stroke-width: 0.6; stroke-dasharray: 2 2; }
+.ed-extra { min-height: 52px; display: flex; align-items: center; justify-content: center; }
+.ed-hint { margin: 0; font: 400 15px/1.35 "Barlow", Arial, sans-serif; color: var(--chrome-muted); text-align: center; }
+.ed-bottom { display: flex; justify-content: flex-end; gap: 8px; }
+.ed-bottom .btn.primary { min-width: 92px; }
+.btn:disabled, .choice:disabled { opacity: 0.4; }
+.btn.toggle[aria-pressed="true"] { background: var(--btn-primary-bg); color: var(--btn-primary-fg); }
+#edMenu { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: flex-end; }
+#edMenu[hidden] { display: none; }
+.menu-backdrop { position: absolute; inset: 0; background: var(--overlay); }
+.menu-panel {
+  position: relative;
+  max-height: 88%;
+  overflow-y: auto;
+  padding: 16px 14px calc(env(safe-area-inset-bottom, 0px) + 14px);
+  border-radius: 18px 18px 0 0;
+  background: var(--panel-bg);
+  box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.3);
+}
+.menu-title { margin: 0 0 12px; font: 600 18px/1.3 "Barlow", Arial, sans-serif; }
+.menu-preview { margin: 0 0 12px; min-height: 40px; text-align: center; font: 700 32px/1.2 "Barlow Condensed", "Arial Narrow", Arial, sans-serif; }
+.menu-preview .muted { font: 400 16px "Barlow", Arial, sans-serif; color: var(--chrome-muted); }
+.menu-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin-top: 14px; }
+.choices.cols-2 { grid-template-columns: repeat(2, 1fr); }
+.choices.cols-3 { grid-template-columns: repeat(3, 1fr); }
+.choices.cols-2 .choice, .choices.cols-3 .choice { min-height: 68px; }
+.kc { display: inline-block; transform: scaleX(-1); }
+.hl-ico { display: flex; flex-direction: column; gap: 4px; width: 36px; }
+.hl-ico i { display: block; height: 3px; background: currentColor; }
+.field-svg { display: block; width: 100%; max-width: 420px; margin: 0 auto; background: #FFFFFF; border-radius: 12px; touch-action: manipulation; }
+</style>
+</head>
+<body>
+<section id="homeView" class="view">
+  <div class="home">
+    <div class="home-inner">
+      <svg class="home-logo" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#14211A"/><path d="M32 9 L55 32 L32 55 L9 32 Z" fill="none" stroke="#FFF" stroke-width="3"/><circle cx="32" cy="32" r="11" fill="#E6EE3A"/><path d="M25 24 Q29 32 25 40 M39 24 Q35 32 39 40" fill="none" stroke="#C8102E" stroke-width="1.6"/></svg>
+      <h1>Anotación de softball</h1>
+      <p class="home-lead">Hoja de anotación para el móvil</p>
+      <button type="button" class="home-btn primary" id="homeNew"><strong>Nuevo partido</strong><span>Empieza una hoja en blanco</span></button>
+      <button type="button" class="home-btn" id="homeOpen"><strong>Abrir partido</strong><span id="homeOpenSub">Partidos guardados en este móvil</span></button>
+      <button type="button" class="home-btn" id="homeLoad"><strong>Cargar partido</strong><span>Importa un archivo traído de otro dispositivo</span></button>
+      <button type="button" class="home-btn" id="homeExport"><strong>Exportar partido</strong><span>Como archivo para otro móvil o como PDF</span></button>
+      <p class="home-foot" id="appVersion"></p>
+    </div>
+  </div>
+</section>
+<section id="listView" class="view" hidden>
+  <header class="bar">
+    <button type="button" class="tool" id="listBack">Atrás</button>
+    <div class="list-head"><p class="list-title" id="listTitle"></p><p class="list-hint" id="listHint"></p></div>
+  </header>
+  <div class="list" id="listBody"></div>
+  <div class="list-actions" id="listActions" hidden>
+    <button type="button" class="btn ghost" id="expPdf">Hoja en PDF</button>
+    <button type="button" class="btn primary" id="expJson">Archivo (.json)</button>
+  </div>
+</section>
+<div id="sheetView" class="view" hidden>
+<header class="bar">
+  <div class="tabs" role="tablist" aria-label="Equipo">
+    <button class="tab" role="tab" data-tab="visitante" aria-selected="true">Visitante<span class="tab-team" id="tabTeam-visitante"></span></button>
+    <button class="tab" role="tab" data-tab="local" aria-selected="false">Local<span class="tab-team" id="tabTeam-local"></span></button>
+  </div>
+  <button class="tool" id="fitBtn" type="button">Ajustar</button>
+  <button class="tool icon" id="menuBtn" type="button" aria-label="Más opciones">⋯</button>
+</header>
+<main id="stage" aria-label="Hoja de anotación"><div id="paper"></div></main>
+</div>
+<div id="overlay" hidden><div class="panel" role="dialog" aria-modal="true" id="panel"></div></div>
+<div id="editor" hidden role="dialog" aria-modal="true" aria-labelledby="edTitle">
+  <div class="ed-top">
+    <button type="button" class="btn ghost" id="edCancel">Cancelar</button>
+    <div class="ed-head"><p class="ed-title" id="edTitle"></p><p class="ed-sub" id="edSub"></p></div>
+  </div>
+  <div class="ed-main" id="edMain"></div>
+  <div class="ed-extra" id="edExtra"></div>
+  <div class="ed-bottom">
+    <button type="button" class="btn ghost" id="edRedo">Rehacer</button>
+    <button type="button" class="btn ghost" id="edUndo">Deshacer</button>
+    <button type="button" class="btn primary" id="edOk">OK</button>
+  </div>
+  <div id="edMenu" hidden>
+    <div class="menu-backdrop" data-m="close"></div>
+    <div class="menu-panel" id="edMenuPanel"></div>
+  </div>
+</div>
+<div id="toast" role="status" aria-live="polite"></div>
+<div id="printArea" aria-hidden="true"></div>
+<input type="file" id="fileInput" accept=".json,application/json,text/plain" hidden>
+
+<script>
+(function () {
+  "use strict";
+
+  // ---------- Datos ----------
+  var KEY = "anotacion-softball:partido-actual";
+  var STATS = ["AB", "R", "H", "RBI", "BB", "SB", "SF", "SH", "E", "LOB"];
+  var POS = {
+    1: "Lanzador", 2: "Receptor", 3: "Primera", 4: "Segunda", 5: "Tercera",
+    6: "Short", 7: "Jardín izq.", 8: "Jardín cen.", 9: "Jardín der.", 10: "Shortfielder"
+  };
+  var PITCH_COLS = [
+    { k: "dorsal", h: "#", w: 40, kind: "dorsal", label: "dorsal" },
+    { k: "nombre", h: "LANZADOR", w: 170, kind: "text", label: "nombre" },
+    { k: "ip", h: "IP", w: 44, kind: "decimal", label: "entradas lanzadas (IP)" },
+    { k: "h", h: "H", w: 38, kind: "num", label: "hits (H)" },
+    { k: "r", h: "R", w: 38, kind: "num", label: "carreras (R)" },
+    { k: "er", h: "ER", w: 40, kind: "num", label: "carreras limpias (ER)" },
+    { k: "bb", h: "BB", w: 40, kind: "num", label: "bases por bolas (BB)" },
+    { k: "k", h: "K", w: 38, kind: "num", label: "ponches (K)" },
+    { k: "hr", h: "HR", w: 40, kind: "num", label: "home runs (HR)" },
+    { k: "p", h: "P", w: 40, kind: "num", label: "lanzamientos (P)" }
+  ];
+  var TEAM_LABEL = { visitante: "Visitante", local: "Local" };
+
+  function blankPlayer() { return { dorsal: "", nombre: "", pos: "" }; }
+  function blankTeam() {
+    var lineup = [], lanz = [], cols = [], i;
+    for (i = 0; i < 10; i++) {
+      var sub = blankPlayer(); sub.inning = "";
+      lineup.push({ titular: blankPlayer(), sustituto: sub });
+    }
+    for (i = 0; i < 5; i++) {
+      lanz.push({ dorsal: "", nombre: "", ip: "", h: "", r: "", er: "", bb: "", k: "", hr: "", p: "" });
+    }
+    for (i = 1; i <= 7; i++) cols.push({ id: "c" + i, n: i, cont: false });
+    return { nombre: "", columnas: cols, lineup: lineup, lanzadores: lanz, casillas: {} };
+  }
+  function blankGame() {
+    return { version: 1, partido: { fecha: "", hora: "", estadio: "" }, equipos: { visitante: blankTeam(), local: blankTeam() } };
+  }
+  function isValid(g) {
+    try {
+      return g && g.version === 1 && g.partido &&
+        ["visitante", "local"].every(function (t) {
+          var e = g.equipos[t];
+          return e && Array.isArray(e.lineup) && e.lineup.length === 10 &&
+            Array.isArray(e.columnas) && e.columnas.length > 0 && Array.isArray(e.lanzadores);
+        });
+    } catch (err) { return false; }
+  }
+
+  var storageOk = true;
+
+  function newId() { return Math.random().toString(36).slice(2, 8); }
+  // Datos guardados por la pieza 1: columnas sin identificador y sin casillas
+  function migrate(g) {
+    ["visitante", "local"].forEach(function (t) {
+      var e = g.equipos[t];
+      if (!e.casillas || typeof e.casillas !== "object") e.casillas = {};
+      e.columnas.forEach(function (c) { if (!c.id) c.id = c.cont ? "c" + c.n + "x" + newId() : "c" + c.n; });
+    });
+    return g;
+  }
+  var state = blankGame();
+  var active = "visitante";
+
+  function getPath(path) {
+    return path.split(".").reduce(function (o, k) { return o == null ? undefined : o[k]; }, state);
+  }
+  function setPath(path, value) {
+    var parts = path.split("."), last = parts.pop();
+    var obj = parts.reduce(function (o, k) { return o[k]; }, state);
+    obj[last] = value;
+  }
+
+  // ---------- Pintado de la hoja ----------
+  var stage = document.getElementById("stage");
+  var paper = document.getElementById("paper");
+
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" }[c];
+    });
+  }
+  function fa(path, kind, label) {
+    return ' data-field="' + path + '" data-kind="' + kind + '" data-label="' + esc(label) + '"';
+  }
+  function colLabel(c) { return c.cont ? c.n + " cont" : String(c.n); }
+
+  // ---------- Casilla: modelo y dibujo ----------
+  // Rombo en un lienzo de 120 x 110: home abajo y, en sentido antihorario, 1ª, 2ª y 3ª
+  var B = [[60, 81], [84, 57], [60, 33], [36, 57]];
+  var CEN = [60, 57];
+  var RUN_TXT = [[98, 34], [24, 34], [24, 87]];
+  var TRAMO = ["home → 1ª", "1ª → 2ª", "2ª → 3ª", "3ª → home"];
+  var RUN_ZONE = ["1ª → 2ª", "2ª → 3ª", "3ª → home"];
+
+  function emptyCell() {
+    return {
+      lines: [0, 0, 0, 0],
+      effort: [false, false, false],
+      dir: null,
+      out: null,
+      outPlay: null,
+      batter: { play: null, rbi: 0 },
+      runners: [{ play: "", e: null, turno: "" }, { play: "", e: null, turno: "" }, { play: "", e: null, turno: "" }],
+      desempate: false
+    };
+  }
+  function cloneCell(c) { return JSON.parse(JSON.stringify(c)); }
+  function isEmptyCell(c) {
+    var e = emptyCell();
+    return JSON.stringify(c.lines) === JSON.stringify(e.lines) &&
+      JSON.stringify(c.effort) === JSON.stringify(e.effort) &&
+      !c.dir && !c.out && !c.outPlay && !c.batter.play && !c.batter.rbi && !c.desempate &&
+      c.runners.every(function (r) { return !r.play && !r.turno; });
+  }
+  function f1(n) { return Math.round(n * 10) / 10; }
+
+  function outText(op) {
+    if (!op) return "";
+    switch (op.code) {
+      case "K": case "Kc": return "K";
+      case "F": case "FF": case "L": case "P": case "IF": return op.code + op.n;
+      case "FO": return op.seq.join("-") + (op.mod ? " " + op.mod : "");
+      case "U": return op.n + "u";
+      case "SH": case "SF": return op.code + (op.n || "");
+      case "CS": return "CS " + op.seq.join("-");
+      default: return op.code;
+    }
+  }
+  function outHTML(op) { return op && op.code === "Kc" ? '<span class="kc">K</span>' : esc(outText(op)); }
+  function batterText(p) { if (!p) return ""; if (p.code === "E") return "E" + p.n; return p.code; }
+  function runnerPlayText(r) { return r.play === "SB" ? "SB" : r.play === "E" ? "E" + r.e : ""; }
+
+  function arrowSVG(x1, y1, x2, y2, color, w, head) {
+    var dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy) || 1, ux = dx / L, uy = dy / L;
+    var bx = x2 - ux * head, by = y2 - uy * head, nx = -uy * head * 0.55, ny = ux * head * 0.55;
+    return '<line x1="' + f1(x1) + '" y1="' + f1(y1) + '" x2="' + f1(bx) + '" y2="' + f1(by) + '" stroke="' + color + '" stroke-width="' + w + '" stroke-linecap="round"/>' +
+      '<polygon points="' + f1(x2) + "," + f1(y2) + " " + f1(bx + nx) + "," + f1(by + ny) + " " + f1(bx - nx) + "," + f1(by - ny) + '" fill="' + color + '"/>';
+  }
+  // Dirección del batazo: ángulo desde la vertical y distancia relativa al outfield
+  function dirEnd(dir) {
+    var len = 12 + Math.min(dir.r, 1.15) * 60, ex = 60, ey = 81;
+    for (var k = 0; k < 30; k++) {
+      ex = 60 + Math.sin(dir.a) * len; ey = 81 - Math.cos(dir.a) * len;
+      if (ex >= 4 && ex <= 116 && ey >= 4 && ey <= 106) break;
+      len *= 0.92;
+    }
+    return [ex, ey];
+  }
+  // Flecha curva por fuera de la base, en el sentido de la carrera
+  function effortSVG(k) {
+    var b = B[k], th = Math.atan2(b[1] - CEN[1], b[0] - CEN[0]), r = 8;
+    var a0 = th + 1.22, a1 = th - 1.22;
+    var sx = b[0] + r * Math.cos(a0), sy = b[1] + r * Math.sin(a0);
+    var ex = b[0] + r * Math.cos(a1), ey = b[1] + r * Math.sin(a1);
+    var tx = Math.sin(a1), ty = -Math.cos(a1), nx = -ty, ny = tx, hs = 3.2;
+    return '<path d="M' + f1(sx) + " " + f1(sy) + " A" + r + " " + r + " 0 0 0 " + f1(ex) + " " + f1(ey) + '" fill="none" stroke="#000" stroke-width="1.6"/>' +
+      '<polygon points="' + f1(ex + tx * hs) + "," + f1(ey + ty * hs) + " " + f1(ex + nx * hs * 0.7) + "," + f1(ey + ny * hs * 0.7) + " " +
+      f1(ex - nx * hs * 0.7) + "," + f1(ey - ny * hs * 0.7) + '" fill="#000"/>';
+  }
+
+  function cellSVG(c, interactive) {
+    c = c || emptyCell();
+    var s = [], k;
+    s.push('<svg viewBox="0 0 120 110" xmlns="http://www.w3.org/2000/svg" font-family="Barlow Condensed, Arial Narrow, Arial, sans-serif"' +
+      (interactive ? ' class="ed-svg" id="edSvg"' : ' aria-hidden="true"') + ">");
+    if (interactive) {
+      s.push('<rect class="hz" data-zone="r1" x="0" y="0" width="60" height="57"/>');
+      s.push('<rect class="hz" data-zone="r0" x="60" y="0" width="60" height="57"/>');
+      s.push('<rect class="hz" data-zone="r2" x="0" y="57" width="60" height="53"/>');
+      s.push('<rect class="hz" data-zone="batter" x="60" y="57" width="60" height="53"/>');
+      s.push('<path class="guide" d="M60 0 V33 M60 81 V110 M0 57 H36 M84 57 H120"/>');
+    }
+    var run = c.lines.every(function (v) { return v === 1; });
+    if (c.dir) { var e = dirEnd(c.dir); s.push('<g opacity="0.8">' + arrowSVG(60, 81, e[0], e[1], "#1E8E3E", 1.8, 5) + "</g>"); }
+    s.push('<polygon points="' + B.map(function (p) { return p.join(","); }).join(" ") + '" fill="' + (run ? "#000" : "none") +
+      '" stroke="#000" stroke-width="1.5" stroke-linejoin="round"/>');
+    c.lines.forEach(function (st, i) {
+      var a = B[i], b = B[(i + 1) % 4];
+      if (st === 1) {
+        s.push('<line x1="' + a[0] + '" y1="' + a[1] + '" x2="' + b[0] + '" y2="' + b[1] + '" stroke="#000" stroke-width="4.5" stroke-linecap="round"/>');
+      } else if (st === 2) {
+        var mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2, dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy);
+        var px = -dy / L * 4.5, py = dx / L * 4.5;
+        s.push('<line x1="' + a[0] + '" y1="' + a[1] + '" x2="' + mx + '" y2="' + my + '" stroke="#000" stroke-width="4.5" stroke-linecap="round"/>');
+        s.push('<line x1="' + f1(mx + px) + '" y1="' + f1(my + py) + '" x2="' + f1(mx - px) + '" y2="' + f1(my - py) + '" stroke="#000" stroke-width="2.4" stroke-linecap="round"/>');
+      }
+    });
+    if (interactive) {
+      [1, 2, 3].forEach(function (i) {
+        s.push('<rect x="' + (B[i][0] - 2.6) + '" y="' + (B[i][1] - 2.6) + '" width="5.2" height="5.2" fill="#FFF" stroke="#000" stroke-width="0.8" transform="rotate(45 ' + B[i][0] + " " + B[i][1] + ')"/>');
+      });
+      s.push('<path d="M57 78 H63 V81 L60 84 L57 81 Z" fill="#FFF" stroke="#000" stroke-width="0.8"/>');
+    }
+    c.effort.forEach(function (on, i) { if (on) s.push(effortSVG(i + 1)); });
+
+    var ot = outText(c.outPlay);
+    if (ot) {
+      var fs = ot.length <= 3 ? 17 : ot.length <= 5 ? 13 : ot.length <= 8 ? 10 : 8.5;
+      var attrs = 'x="60" y="' + f1(57 + fs * 0.35) + '" text-anchor="middle" font-size="' + fs + '" font-weight="700" fill="' + (run ? "#FFF" : "#000") + '"';
+      if (c.outPlay.code === "Kc") s.push("<text " + attrs + ' transform="translate(120 0) scale(-1 1)">K</text>');
+      else s.push("<text " + attrs + ">" + esc(ot) + "</text>");
+    }
+
+    var bp = c.batter.play;
+    if (bp && bp.code === "H") {
+      for (k = 0; k < bp.n; k++) {
+        var y = 88 - (bp.n - 1) * 3.25 + k * 6.5;
+        s.push('<line x1="84" y1="' + f1(y) + '" x2="112" y2="' + f1(y) + '" stroke="#000" stroke-width="2.6"/>');
+      }
+    } else if (bp) {
+      s.push('<text x="98" y="93" text-anchor="middle" font-size="16" font-weight="700">' + esc(batterText(bp)) + "</text>");
+    }
+    for (k = 0; k < c.batter.rbi; k++) s.push('<circle cx="' + (87 + k * 7.5) + '" cy="103" r="2.6" fill="#000"/>');
+
+    c.runners.forEach(function (r, i) {
+      var p = RUN_TXT[i], t = runnerPlayText(r);
+      if (t) s.push('<text x="' + p[0] + '" y="' + p[1] + '" text-anchor="middle" font-size="15" font-weight="700">' + esc(t) + "</text>");
+      if (r.turno) s.push('<text x="' + p[0] + '" y="' + (p[1] + (t ? 13 : 5)) + '" text-anchor="middle" font-size="14" font-weight="600">' + esc(r.turno) + "</text>");
+    });
+
+    if (c.out === 3) s.push('<line x1="105" y1="110" x2="120" y2="95" stroke="#000" stroke-width="3"/>');
+    if (c.out) {
+      s.push('<circle cx="108" cy="12" r="10" fill="none" stroke="#C8102E" stroke-width="2"/>' +
+        '<text x="108" y="17.2" text-anchor="middle" font-size="15" font-weight="700" fill="#C8102E">' + c.out + "</text>");
+    } else if (interactive) {
+      s.push('<circle cx="108" cy="12" r="10" fill="none" stroke="#C8102E" stroke-width="1" stroke-dasharray="2 2" opacity="0.6"/>');
+    }
+
+    if (interactive) {
+      s.push('<polygon class="hz" data-zone="center" points="60,40 77,57 60,74 43,57"/>');
+      c.lines.forEach(function (st, i) {
+        var a = B[i], b = B[(i + 1) % 4];
+        s.push('<line class="hl" data-zone="line' + i + '" x1="' + f1(a[0] + (b[0] - a[0]) * 0.24) + '" y1="' + f1(a[1] + (b[1] - a[1]) * 0.24) +
+          '" x2="' + f1(a[0] + (b[0] - a[0]) * 0.76) + '" y2="' + f1(a[1] + (b[1] - a[1]) * 0.76) + '"/>');
+      });
+      [1, 2, 3].forEach(function (i) { s.push('<circle class="hb" data-zone="base' + i + '" cx="' + B[i][0] + '" cy="' + B[i][1] + '" r="9"/>'); });
+      s.push('<circle class="hb" data-zone="home" cx="60" cy="81" r="9"/>');
+      s.push('<circle class="hb" data-zone="outs" cx="108" cy="12" r="13"/>');
+    }
+    s.push("</svg>");
+    return s.join("");
+  }
+
+
+  function sheetHTML(t) {
+    var team = state.equipos[t];
+    var cols = team.columnas;
+    var p = state.partido;
+    var base = "equipos." + t;
+    var st = computeStats(t);
+    var h = [];
+
+    h.push('<div class="game-head">');
+    h.push('<div class="hf">FECHA:<span class="line fld" style="width:190px"' + fa("partido.fecha", "text", "Fecha") + ">" + esc(p.fecha) + "</span></div>");
+    h.push('<div class="hf">HORA:<span class="line fld" style="width:110px"' + fa("partido.hora", "text", "Hora") + ">" + esc(p.hora) + "</span></div>");
+    h.push('<div class="hf">ESTADIO:<span class="line fld" style="width:330px"' + fa("partido.estadio", "text", "Estadio") + ">" + esc(p.estadio) + "</span></div>");
+    h.push("</div>");
+
+    h.push('<section class="team">');
+    h.push('<div class="team-head"><div class="band">' + TEAM_LABEL[t].toUpperCase() + '</div>');
+    h.push('<div class="team-name">EQUIPO:<span class="line fld"' + fa(base + ".nombre", "text", "Equipo " + TEAM_LABEL[t].toLowerCase()) + ">" + esc(team.nombre) + "</span></div></div>");
+
+    // Tabla principal
+    h.push('<table class="grid"><colgroup><col style="width:40px"><col style="width:52px"><col style="width:210px"><col style="width:48px">');
+    cols.forEach(function () { h.push('<col style="width:64px">'); });
+    STATS.forEach(function (s) { h.push('<col style="width:' + (s === "RBI" || s === "LOB" ? 42 : 38) + 'px">'); });
+    h.push("</colgroup><thead><tr><th>ORD</th><th>#</th><th>JUGADOR</th><th>POS</th>");
+    cols.forEach(function (c) { h.push('<th class="colhead' + (c.cont ? " inning-cont" : "") + '" data-col="' + c.id + '">' + esc(colLabel(c)) + "</th>"); });
+    STATS.forEach(function (s) { h.push("<th>" + s + "</th>"); });
+    h.push("</tr></thead><tbody>");
+
+    team.lineup.forEach(function (slot, i) {
+      var tp = base + ".lineup." + i + ".titular";
+      var sp = base + ".lineup." + i + ".sustituto";
+      var ord = (i + 1) + ".º bate";
+      var tit = slot.titular, sub = slot.sustituto;
+      h.push('<tr class="r-top"><td class="ord' + (st.next.row === i ? " next" : "") + '" rowspan="2">' + (i + 1) + "</td>");
+      h.push('<td class="num split fld"' + fa(tp + ".dorsal", "dorsal", "Dorsal del titular del " + ord) + ">" + esc(tit.dorsal) + "</td>");
+      h.push('<td class="name split fld"' + fa(tp + ".nombre", "text", "Titular del " + ord) + ">" + esc(tit.nombre) + "</td>");
+      h.push('<td class="pos split fld"' + fa(tp + ".pos", "pos", "Posición del titular del " + ord) + ">" + esc(tit.pos) + "</td>");
+      cols.forEach(function (c) {
+        h.push('<td class="ab' + (st.next.row === i && st.next.colId === c.id ? " next" : "") + '" rowspan="2" data-ab="' + i + ":" + c.id + '">' + cellSVG(team.casillas[i + ":" + c.id], false) + "</td>");
+      });
+      STATS.forEach(function (k) { var r = st.rows[i]; h.push('<td class="stat" rowspan="2">' + (r.any ? r[k] : "") + "</td>"); });
+      h.push("</tr>");
+
+      h.push('<tr class="r-sub">');
+      h.push('<td class="num split fld"' + fa(sp + ".dorsal", "dorsal", "Dorsal del sustituto del " + ord) + ">" + esc(sub.dorsal) + "</td>");
+      h.push('<td class="subcell split"><div class="subwrap">');
+      h.push('<span class="subname fld"' + fa(sp + ".nombre", "text", "Sustituto del " + ord) + ">" +
+        (sub.nombre ? esc(sub.nombre) : '<span class="ph">Sustituto</span>') + "</span>");
+      h.push('<span class="inn fld"' + fa(sp + ".inning", "inning", "Inning en que entra el sustituto del " + ord) + ">" +
+        (sub.inning ? "Inn " + esc(sub.inning) : '<span class="ph">Inn</span>') + "</span>");
+      h.push("</div></td>");
+      h.push('<td class="pos split fld"' + fa(sp + ".pos", "pos", "Posición del sustituto del " + ord) + ">" + esc(sub.pos) + "</td>");
+      h.push("</tr>");
+    });
+    h.push("</tbody></table>");
+
+    // Marcador por entradas y lanzadores
+    h.push('<div class="bottom">');
+    var ns = [];
+    cols.forEach(function (c) { if (ns.indexOf(c.n) < 0) ns.push(c.n); });
+    var anyInn = ns.some(function (n) { return st.innings[n].any; });
+    h.push('<table class="mini"><colgroup><col style="width:160px">');
+    ns.forEach(function () { h.push('<col style="width:' + (ns.length > 9 ? 38 : 42) + 'px">'); });
+    h.push('<col style="width:52px"></colgroup><thead><tr><th class="lead">' + TEAM_LABEL[t].toUpperCase() + "</th>");
+    ns.forEach(function (n) { h.push("<th>" + n + "</th>"); });
+    h.push('<th class="lead" style="text-align:center">TOT</th></tr></thead><tbody>');
+    [["R", "Carreras (R)"], ["H", "Hits (H)"], ["LOB", "Left on Base (LOB)"]].forEach(function (m) {
+      var tot = 0;
+      h.push('<tr><td class="rowlbl">' + m[1] + "</td>");
+      ns.forEach(function (n) {
+        var v = st.innings[n];
+        tot += v[m[0]];
+        h.push('<td class="auto">' + (v.any ? v[m[0]] : "") + "</td>");
+      });
+      h.push('<td class="auto tot">' + (anyInn ? tot : "") + "</td></tr>");
+    });
+    h.push("</tbody></table>");
+
+    h.push('<table class="mini"><colgroup>');
+    PITCH_COLS.forEach(function (pc) { h.push('<col style="width:' + pc.w + 'px">'); });
+    h.push('</colgroup><thead><tr><th class="title" colspan="' + PITCH_COLS.length + '">LANZADORES (' + TEAM_LABEL[t].toUpperCase() + ")</th></tr><tr>");
+    PITCH_COLS.forEach(function (pc) { h.push("<th>" + pc.h + "</th>"); });
+    h.push("</tr></thead><tbody>");
+    team.lanzadores.forEach(function (row, i) {
+      h.push("<tr>");
+      PITCH_COLS.forEach(function (pc) {
+        h.push('<td class="fld' + (pc.k === "nombre" ? " pname" : "") + '"' +
+          fa(base + ".lanzadores." + i + "." + pc.k, pc.kind, "Lanzador " + (i + 1) + ": " + pc.label) + ">" + esc(row[pc.k]) + "</td>");
+      });
+      h.push("</tr>");
+    });
+    h.push("</tbody></table></div>");
+
+    h.push("</section>");
+    return h.join("");
+  }
+
+  function render() {
+    paper.innerHTML = sheetHTML(active);
+    ["visitante", "local"].forEach(function (t) {
+      var el = document.getElementById("tabTeam-" + t);
+      el.textContent = state.equipos[t].nombre || "";
+    });
+    document.querySelectorAll(".tab").forEach(function (b) {
+      b.setAttribute("aria-selected", b.getAttribute("data-tab") === active ? "true" : "false");
+    });
+  }
+
+  // ---------- Zoom y desplazamiento ----------
+  var views = {};
+  function view() {
+    if (!views[active]) views[active] = { s: 1, x: 0, y: 0, fitted: true, init: false };
+    return views[active];
+  }
+  function fitScale() { return stage.clientWidth / paper.offsetWidth; }
+  function minScale() { return fitScale() * 0.9; }
+  var MAX_SCALE = 3;
+  function clampScale(s) { return Math.max(minScale(), Math.min(MAX_SCALE, s)); }
+  function clampPos(v) {
+    var vw = stage.clientWidth, vh = stage.clientHeight;
+    var sw = paper.offsetWidth * v.s, sh = paper.offsetHeight * v.s;
+    v.x = sw <= vw ? (vw - sw) / 2 : Math.min(0, Math.max(vw - sw, v.x));
+    v.y = sh <= vh ? 0 : Math.min(0, Math.max(vh - sh, v.y));
+  }
+  function apply() {
+    var v = view();
+    paper.style.transform = "translate(" + v.x + "px," + v.y + "px) scale(" + v.s + ")";
+  }
+  function fit() {
+    if (!stage.clientWidth || !paper.offsetWidth) return;
+    var v = view();
+    v.s = fitScale(); v.x = 0; v.y = 0; v.fitted = true; v.init = true;
+    clampPos(v); apply();
+  }
+  function ensureView() {
+    if (!stage.clientWidth || !paper.offsetWidth) return;
+    var v = view();
+    if (!v.init || v.fitted) fit(); else { v.s = clampScale(v.s); clampPos(v); apply(); }
+  }
+  function zoomAt(px, py, newScale) {
+    var v = view();
+    var s = clampScale(newScale);
+    var cx = (px - v.x) / v.s, cy = (py - v.y) / v.s;
+    v.s = s; v.x = px - cx * s; v.y = py - cy * s;
+    v.fitted = false;
+    clampPos(v); apply();
+  }
+
+  var pointers = new Map();
+  var g = null;
+  function pts() { return Array.from(pointers.values()); }
+  function baseline() {
+    var v = view(), p = pts();
+    g.t0 = { x: v.x, y: v.y, s: v.s };
+    if (p.length >= 2) {
+      g.d0 = Math.hypot(p[0].x - p[1].x, p[0].y - p[1].y) || 1;
+      g.m0 = { x: (p[0].x + p[1].x) / 2, y: (p[0].y + p[1].y) / 2 };
+    } else if (p.length === 1) {
+      g.p0 = { x: p[0].x, y: p[0].y };
+    }
+  }
+
+  stage.addEventListener("pointerdown", function (e) {
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    try { stage.setPointerCapture(e.pointerId); } catch (err) { /* sin captura */ }
+    pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pointers.size === 1) g = { start: performance.now(), moved: false, multi: false, sx: e.clientX, sy: e.clientY };
+    else if (g) g.multi = true;
+    if (g) baseline();
+  });
+
+  stage.addEventListener("pointermove", function (e) {
+    if (!pointers.has(e.pointerId) || !g) return;
+    pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    var v = view(), p = pts(), r = stage.getBoundingClientRect();
+    if (p.length >= 2) {
+      g.moved = true;
+      var d = Math.hypot(p[0].x - p[1].x, p[0].y - p[1].y);
+      var m = { x: (p[0].x + p[1].x) / 2, y: (p[0].y + p[1].y) / 2 };
+      var s = clampScale(g.t0.s * d / g.d0);
+      var cx = (g.m0.x - r.left - g.t0.x) / g.t0.s;
+      var cy = (g.m0.y - r.top - g.t0.y) / g.t0.s;
+      v.s = s;
+      v.x = (m.x - r.left) - cx * s;
+      v.y = (m.y - r.top) - cy * s;
+    } else {
+      if (!g.moved && Math.hypot(e.clientX - g.sx, e.clientY - g.sy) < 10) return;
+      g.moved = true;
+      v.x = g.t0.x + (p[0].x - g.p0.x);
+      v.y = g.t0.y + (p[0].y - g.p0.y);
+    }
+    v.fitted = false;
+    clampPos(v); apply();
+  });
+
+  function endPointer(e) {
+    if (!pointers.has(e.pointerId)) return;
+    pointers.delete(e.pointerId);
+    if (pointers.size > 0) { if (g) baseline(); return; }
+    var wasTap = e.type === "pointerup" && g && !g.moved && !g.multi && performance.now() - g.start < 700;
+    g = null;
+    if (wasTap) handleTap(e.clientX, e.clientY);
+  }
+  stage.addEventListener("pointerup", endPointer);
+  stage.addEventListener("pointercancel", endPointer);
+  // Evita el clic fantasma que el móvil genera tras el toque
+  stage.addEventListener("touchend", function (e) { if (e.cancelable) e.preventDefault(); }, { passive: false });
+
+  stage.addEventListener("wheel", function (e) {
+    e.preventDefault();
+    var r = stage.getBoundingClientRect(), v = view();
+    if (e.ctrlKey || e.metaKey) {
+      zoomAt(e.clientX - r.left, e.clientY - r.top, v.s * Math.exp(-e.deltaY * 0.01));
+    } else {
+      v.x -= e.deltaX; v.y -= e.deltaY; v.fitted = false;
+      clampPos(v); apply();
+    }
+  }, { passive: false });
+
+  // Bloquea el zoom propio del navegador (iOS lo ignora en la etiqueta viewport)
+  document.addEventListener("gesturestart", function (e) { e.preventDefault(); });
+  document.addEventListener("touchmove", function (e) { if (e.touches.length > 1) e.preventDefault(); }, { passive: false });
+
+  window.addEventListener("resize", function () { ensureView(); });
+
+  // ---------- Toques ----------
+  function handleTap(x, y) {
+    var el = document.elementFromPoint(x, y);
+    if (!el) return;
+    var f = el.closest("[data-field]");
+    if (f) { openField(f); return; }
+    var colh = el.closest("[data-col]");
+    if (colh) { openColumnMenu(colh.getAttribute("data-col")); return; }
+    var ab = el.closest("[data-ab]");
+    if (ab) { var parts = ab.getAttribute("data-ab").split(":"); openEditor(active, +parts[0], parts[1]); return; }
+    if (el.closest(".stat, .auto")) { toast("Se calcula solo a partir de las casillas."); }
+  }
+
+  var toastTimer = null;
+  var toastEl = document.getElementById("toast");
+  function toast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toastEl.classList.remove("show"); }, 2400);
+  }
+
+  // ---------- Panel de edición ----------
+  var overlay = document.getElementById("overlay");
+  var panel = document.getElementById("panel");
+  var openedAt = 0;
+  var onPanelAction = null;
+
+  function openPanel(html, handler) {
+    panel.innerHTML = html;
+    onPanelAction = handler;
+    overlay.hidden = false;
+    openedAt = Date.now();
+  }
+  function closePanel() {
+    overlay.hidden = true;
+    panel.innerHTML = "";
+    onPanelAction = null;
+  }
+
+  overlay.addEventListener("click", function (e) {
+    if (Date.now() - openedAt < 400) return;
+    if (e.target === overlay) { closePanel(); return; }
+    var b = e.target.closest("[data-act]");
+    if (b && onPanelAction) onPanelAction(b.getAttribute("data-act"), b.getAttribute("data-val"));
+  });
+  document.addEventListener("keydown", function (e) {
+    if (overlay.hidden) return;
+    if (e.key === "Escape") closePanel();
+    if (e.key === "Enter" && e.target.tagName === "INPUT" && onPanelAction) { e.preventDefault(); onPanelAction("save"); }
+  });
+
+  function commit(path, value) {
+    setPath(path, value);
+    persist();
+    closePanel();
+    render();
+    ensureView();
+  }
+
+  function openField(el) {
+    var path = el.getAttribute("data-field");
+    var kind = el.getAttribute("data-kind");
+    var label = el.getAttribute("data-label");
+    var current = getPath(path) || "";
+
+    if (kind === "pos" || kind === "inning") {
+      var options;
+      if (kind === "pos") {
+        options = Object.keys(POS).map(function (k) { return { v: k, sub: POS[k] }; });
+      } else {
+        var team = state.equipos[path.split(".")[1]];
+        options = team.columnas.map(function (c) { return { v: colLabel(c), sub: "" }; });
+      }
+      var html = '<p class="panel-title">' + esc(label) + '</p><div class="choices' + (kind === "inning" ? " cols-4" : "") + '">';
+      options.forEach(function (o) {
+        html += '<button type="button" class="choice" data-act="pick" data-val="' + esc(o.v) + '" aria-pressed="' +
+          (String(current) === String(o.v) ? "true" : "false") + '">' + esc(o.v) + (o.sub ? "<small>" + esc(o.sub) + "</small>" : "") + "</button>";
+      });
+      html += '</div><div class="panel-actions">';
+      if (current) html += '<button type="button" class="btn ghost push-left" data-act="clear">Quitar</button>';
+      html += '<button type="button" class="btn ghost" data-act="cancel">Cancelar</button></div>';
+      openPanel(html, function (act, val) {
+        if (act === "pick") commit(path, val);
+        else if (act === "clear") commit(path, "");
+        else closePanel();
+      });
+      return;
+    }
+
+    var inputmode = kind === "num" ? "numeric" : kind === "decimal" ? "decimal" : "text";
+    var maxlen = kind === "dorsal" ? 4 : kind === "num" || kind === "decimal" ? 5 : 60;
+    var placeholder = path === "partido.fecha" ? "p. ej. 14/11/2026" : path === "partido.hora" ? "p. ej. 18:30" : "";
+    var html2 = '<p class="panel-title">' + esc(label) + '</p>' +
+      '<input id="fieldInput" type="text" inputmode="' + inputmode + '" maxlength="' + maxlen + '" autocomplete="off" autocorrect="off" spellcheck="false"' +
+      (kind === "text" ? ' autocapitalize="words"' : ' autocapitalize="characters"') +
+      ' placeholder="' + esc(placeholder) + '" value="' + esc(current) + '">' +
+      '<div class="panel-actions"><button type="button" class="btn ghost" data-act="cancel">Cancelar</button>' +
+      '<button type="button" class="btn primary" data-act="save">Guardar</button></div>';
+    openPanel(html2, function (act) {
+      if (act === "save") commit(path, document.getElementById("fieldInput").value.trim());
+      else closePanel();
+    });
+    var input = document.getElementById("fieldInput");
+    input.focus();
+    try { input.setSelectionRange(input.value.length, input.value.length); } catch (err) { /* sin cursor */ }
+  }
+
+  // ---------- Totales y orden de bateo ----------
+  var RUNNER_OUTS = ["CS", "LE", "AP"];
+  function scored(c) { return c.lines.every(function (v) { return v === 1; }) || (!!c.batter.play && c.batter.play.code === "HR"); }
+  function isPA(c) {
+    if (c.desempate && !c.batter.play) return false;
+    return !!c.batter.play || (!!c.outPlay && RUNNER_OUTS.indexOf(c.outPlay.code) < 0);
+  }
+  function reachedBase(c) { return !!c.batter.play || c.desempate; }
+  function outAsRunner(c) { return c.lines.indexOf(2) >= 0 || (reachedBase(c) && !!c.outPlay); }
+  function isAB(c) {
+    if (!isPA(c)) return false;
+    if (c.batter.play) return ["BB", "iBB", "HbP"].indexOf(c.batter.play.code) < 0;
+    return ["SH", "SF"].indexOf(c.outPlay.code) < 0;
+  }
+  function isLOB(c) { return reachedBase(c) && !scored(c) && !outAsRunner(c); }
+  function other(t) { return t === "visitante" ? "local" : "visitante"; }
+  function colById(team) {
+    var m = {};
+    team.columnas.forEach(function (c, i) { m[c.id] = { col: c, idx: i }; });
+    return m;
+  }
+  function activeAt(slot, n) {
+    var sub = slot.sustituto;
+    var entra = parseInt(sub.inning, 10);
+    return (sub.nombre || sub.pos) && entra && entra <= n ? sub : slot.titular;
+  }
+  function closedInnings(team) {
+    var map = colById(team), closed = {};
+    Object.keys(team.casillas).forEach(function (k) {
+      var c = team.casillas[k], col = map[k.split(":")[1]];
+      if (col && c.out === 3) closed[col.col.n] = true;
+    });
+    return closed;
+  }
+
+  function computeStats(t) {
+    var team = state.equipos[t], map = colById(team);
+    var rows = [], innings = {}, i;
+    for (i = 0; i < 10; i++) rows.push({ AB: 0, R: 0, H: 0, RBI: 0, BB: 0, SB: 0, SF: 0, SH: 0, E: 0, LOB: 0, any: false });
+    team.columnas.forEach(function (c) { if (!innings[c.n]) innings[c.n] = { R: 0, H: 0, LOB: 0, any: false }; });
+
+    Object.keys(team.casillas).forEach(function (k) {
+      var parts = k.split(":"), row = +parts[0], col = map[parts[1]], c = team.casillas[k];
+      if (!col || !rows[row]) return;
+      var r = rows[row], inn = innings[col.col.n];
+      r.any = true; inn.any = true;
+      if (isAB(c)) r.AB++;
+      if (scored(c)) { r.R++; inn.R++; }
+      var bp = c.batter.play;
+      if (bp && (bp.code === "H" || bp.code === "HR")) { r.H++; inn.H++; }
+      r.RBI += c.batter.rbi || 0;
+      if (bp && (bp.code === "BB" || bp.code === "iBB")) r.BB++;
+      c.runners.forEach(function (rr) { if (rr.play === "SB") r.SB++; });
+      if (c.outPlay && c.outPlay.code === "SF") r.SF++;
+      if (c.outPlay && c.outPlay.code === "SH") r.SH++;
+      if (isLOB(c)) { r.LOB++; inn.LOB++; }
+    });
+
+    // Errores cometidos: E# anotados en la hoja del rival, asignados por posición
+    var opp = state.equipos[other(t)], omap = colById(opp);
+    Object.keys(opp.casillas).forEach(function (k) {
+      var col = omap[k.split(":")[1]], c = opp.casillas[k];
+      if (!col) return;
+      var n = col.col.n, positions = [];
+      if (c.batter.play && c.batter.play.code === "E") positions.push(c.batter.play.n);
+      c.runners.forEach(function (rr) { if (rr.play === "E" && rr.e) positions.push(rr.e); });
+      positions.forEach(function (p) {
+        for (var j = 0; j < 10; j++) {
+          if (String(activeAt(team.lineup[j], n).pos) === String(p)) { rows[j].E++; rows[j].any = true; break; }
+        }
+      });
+    });
+
+    return { rows: rows, innings: innings, next: nextBatter(team, map) };
+  }
+
+  // Siguiente bateador: se recorren las columnas en orden y, dentro de cada una,
+  // los turnos a partir de donde terminó la anterior (el orden da la vuelta del 10 al 1)
+  function nextBatter(team, map) {
+    var next = 0, lastCol = -1, cs = team.casillas, cols = team.columnas;
+    cols.forEach(function (col, ci) {
+      var found = -1;
+      for (var s = 0; s < 10; s++) {
+        var row = (next + s) % 10, c = cs[row + ":" + col.id];
+        if (c && isPA(c)) found = row;
+        else if (found >= 0) break;
+      }
+      if (found >= 0) { next = (found + 1) % 10; lastCol = ci; }
+    });
+    if (lastCol < 0) return { row: 0, colId: cols[0] ? cols[0].id : null };
+    var closed = closedInnings(team), cur = cols[lastCol];
+    if (!closed[cur.n]) return { row: next, colId: cur.id };
+    for (var ci = lastCol + 1; ci < cols.length; ci++) {
+      if (cols[ci].n > cur.n && !cols[ci].cont) return { row: next, colId: cols[ci].id };
+    }
+    return { row: next, colId: null };
+  }
+
+  // ---------- Columnas de inning ----------
+  function maxInning() {
+    var all = state.equipos.visitante.columnas.concat(state.equipos.local.columnas);
+    return Math.max.apply(null, all.map(function (c) { return c.n; }));
+  }
+  function colHasData(t, id) {
+    return Object.keys(state.equipos[t].casillas).some(function (k) { return k.split(":")[1] === id; });
+  }
+  function afterColumnsChange(msg) { persist(); render(); ensureView(); if (msg) toast(msg); }
+  function addExtraInning() {
+    var n = maxInning() + 1;
+    ["visitante", "local"].forEach(function (t) { state.equipos[t].columnas.push({ id: "c" + n, n: n, cont: false }); });
+    afterColumnsChange("Inning " + n + " añadido a los dos equipos.");
+  }
+  function addCont(t, id) {
+    var cols = state.equipos[t].columnas;
+    var i = cols.findIndex(function (c) { return c.id === id; });
+    var c = cols[i];
+    cols.splice(i + 1, 0, { id: "c" + c.n + "x" + newId(), n: c.n, cont: true });
+    afterColumnsChange("Columna «" + c.n + " cont» añadida.");
+  }
+  function removable(t, col) {
+    if (col.cont) return colHasData(t, col.id) ? "Para quitar esta columna, vacía antes sus casillas." : true;
+    if (col.n <= 7) return "";
+    if (col.n !== maxInning()) return "Solo se puede quitar el último inning extra.";
+    var blocked = ["visitante", "local"].some(function (tt) {
+      return colHasData(tt, col.id) || state.equipos[tt].columnas.some(function (c) { return c.cont && c.n === col.n; });
+    });
+    return blocked ? "Para quitar este inning, vacía antes sus casillas y sus columnas «cont» en los dos equipos." : true;
+  }
+  function removeColumn(t, col) {
+    (col.cont ? [t] : ["visitante", "local"]).forEach(function (tt) {
+      var cs = state.equipos[tt].columnas;
+      var i = cs.findIndex(function (c) { return c.id === col.id; });
+      if (i >= 0) cs.splice(i, 1);
+    });
+    afterColumnsChange("Columna quitada.");
+  }
+  function openColumnMenu(id) {
+    var t = active, cols = state.equipos[t].columnas;
+    var idx = cols.findIndex(function (c) { return c.id === id; });
+    var col = cols[idx];
+    if (!col) return;
+    var next = cols[idx + 1];
+    var html = '<p class="panel-title">Inning ' + esc(colLabel(col)) + " (" + TEAM_LABEL[t].toLowerCase() + ')</p><div class="menu-list">';
+    if (!col.cont && !(next && next.cont && next.n === col.n)) {
+      html += '<button type="button" class="btn ghost" data-act="cont">Añadir «' + col.n + ' cont» a la derecha (bateo de vuelta)</button>';
+    }
+    html += '<button type="button" class="btn ghost" data-act="extra">Añadir inning extra (' + (maxInning() + 1) + ") a los dos equipos</button>";
+    var why = removable(t, col);
+    if (why === true) html += '<button type="button" class="btn danger" data-act="remove">Quitar esta columna</button>';
+    else if (why) html += '<p class="panel-text">' + esc(why) + "</p>";
+    html += '<button type="button" class="btn ghost" data-act="cancel">Cerrar</button></div>';
+    openPanel(html, function (act) {
+      closePanel();
+      if (act === "cont") addCont(t, id);
+      else if (act === "extra") addExtraInning();
+      else if (act === "remove") removeColumn(t, col);
+    });
+  }
+
+  // ---------- Pop-up de la casilla ----------
+  var editor = document.getElementById("editor");
+  var edMain = document.getElementById("edMain");
+  var edMenu = document.getElementById("edMenu");
+  var edMenuPanel = document.getElementById("edMenuPanel");
+  var ed = null;
+  var edOpenedAt = 0;
+  var menuState = null;
+
+  function openEditor(t, row, colId) {
+    var team = state.equipos[t];
+    var col = team.columnas.find(function (c) { return c.id === colId; });
+    if (!col) return;
+    var cur = team.casillas[row + ":" + colId];
+    ed = { t: t, row: row, col: col, draft: cur ? cloneCell(cur) : emptyCell(), hist: [], fut: [] };
+    var slot = team.lineup[row];
+    var names = [slot.titular.nombre, slot.sustituto.nombre].filter(Boolean);
+    document.getElementById("edTitle").textContent = (row + 1) + ".º bate, inning " + colLabel(col);
+    document.getElementById("edSub").textContent = TEAM_LABEL[t] + (names.length ? ": " + names.join(" / ") : "");
+    editor.hidden = false;
+    edOpenedAt = Date.now();
+    drawEditor();
+  }
+  function sizeEditorCell() {
+    var svg = document.getElementById("edSvg");
+    if (!svg) return;
+    var w = Math.min(edMain.clientWidth, 480, edMain.clientHeight * 120 / 110);
+    svg.style.width = Math.max(200, Math.floor(w)) + "px";
+  }
+  function drawEditor() {
+    edMain.innerHTML = cellSVG(ed.draft, true);
+    sizeEditorCell();
+    document.getElementById("edExtra").innerHTML = ed.col.n > 7
+      ? '<button type="button" class="btn ghost toggle" id="edTie" aria-pressed="' + (ed.draft.desempate ? "true" : "false") + '">Corredor de desempate</button>'
+      : '<p class="ed-hint">Toca una zona de la casilla para anotar.</p>';
+    document.getElementById("edUndo").disabled = !ed.hist.length;
+    document.getElementById("edRedo").disabled = !ed.fut.length;
+  }
+  function change(fn) {
+    ed.hist.push(cloneCell(ed.draft));
+    ed.fut = [];
+    fn(ed.draft);
+    drawEditor();
+  }
+  function closeEditor() { closeMenu(); editor.hidden = true; edMain.innerHTML = ""; ed = null; }
+  window.addEventListener("resize", function () { if (ed) sizeEditorCell(); });
+
+  document.getElementById("edUndo").addEventListener("click", function () {
+    if (!ed || !ed.hist.length) return;
+    ed.fut.push(cloneCell(ed.draft)); ed.draft = ed.hist.pop(); drawEditor();
+  });
+  document.getElementById("edRedo").addEventListener("click", function () {
+    if (!ed || !ed.fut.length) return;
+    ed.hist.push(cloneCell(ed.draft)); ed.draft = ed.fut.pop(); drawEditor();
+  });
+  document.getElementById("edOk").addEventListener("click", function () {
+    if (!ed || Date.now() - edOpenedAt < 400) return;
+    var team = state.equipos[ed.t], key = ed.row + ":" + ed.col.id;
+    if (isEmptyCell(ed.draft)) delete team.casillas[key]; else team.casillas[key] = ed.draft;
+    persist();
+    closeEditor();
+    render();
+    ensureView();
+  });
+  document.getElementById("edCancel").addEventListener("click", function () {
+    if (!ed || Date.now() - edOpenedAt < 400) return;
+    if (!ed.hist.length) { closeEditor(); return; }
+    openMenu({
+      title: "¿Descartar los cambios de esta casilla?",
+      extras: [{ label: "Seguir anotando", pick: closeMenu }, { label: "Descartar", cls: "danger", pick: closeEditor }],
+      noClose: true
+    });
+  });
+  document.getElementById("edExtra").addEventListener("click", function (e) {
+    if (!ed || !e.target.closest("#edTie")) return;
+    change(function (d) {
+      d.desempate = !d.desempate;
+      d.lines[0] = d.desempate ? 1 : 0;
+      d.lines[1] = d.desempate ? 1 : 0;
+    });
+    toast(ed.draft.desempate ? "Corredor de desempate en segunda (sin hit)." : "Corredor de desempate quitado.");
+  });
+  edMain.addEventListener("click", function (e) {
+    if (!ed || Date.now() - edOpenedAt < 400) return;
+    var z = e.target.closest("[data-zone]");
+    if (z) zoneTap(z.getAttribute("data-zone"));
+  });
+
+  function zoneTap(z) {
+    if (z.indexOf("line") === 0) {
+      var i = +z.slice(4);
+      change(function (d) { d.lines[i] = (d.lines[i] + 1) % 3; });
+      var st = ed.draft.lines[i];
+      toast(st === 1 ? (ed.draft.lines.every(function (v) { return v === 1; }) ? "Carrera anotada." : "Tramo " + TRAMO[i] + " completado.")
+        : st === 2 ? "Out en el tramo " + TRAMO[i] + "." : "Tramo " + TRAMO[i] + " borrado.");
+      return;
+    }
+    if (z.indexOf("base") === 0) {
+      var k = +z.slice(4) - 1;
+      change(function (d) { d.effort[k] = !d.effort[k]; });
+      return;
+    }
+    if (z === "home") fieldMenu();
+    else if (z === "outs") outsMenu();
+    else if (z === "center") centerMenu();
+    else if (z === "batter") batterMenu();
+    else if (z.charAt(0) === "r") runnerMenu(+z.slice(1));
+  }
+
+  // ---------- Menús del pop-up ----------
+  function openMenu(o) {
+    menuState = o;
+    var h = '<p class="menu-title">' + esc(o.title) + "</p>";
+    if (o.preview != null) h += '<p class="menu-preview">' + o.preview + "</p>";
+    if (o.body) h += o.body;
+    if (o.note) h += '<p class="panel-text">' + esc(o.note) + "</p>";
+    if (o.items && o.items.length) {
+      h += '<div class="choices cols-' + (o.cols || 5) + '">';
+      o.items.forEach(function (it, i) {
+        h += '<button type="button" class="choice" data-mi="' + i + '" aria-pressed="' + (it.pressed ? "true" : "false") + '"' +
+          (it.disabled ? " disabled" : "") + ">" + it.label + (it.sub ? "<small>" + esc(it.sub) + "</small>" : "") + "</button>";
+      });
+      h += "</div>";
+    }
+    h += '<div class="menu-actions">';
+    if (o.back) h += '<button type="button" class="btn ghost push-left" data-mb="1">Atrás</button>';
+    (o.extras || []).forEach(function (x, i) {
+      h += '<button type="button" class="btn ' + (x.cls || "ghost") + (x.pressed != null ? " toggle" : "") + '" data-mx="' + i + '"' +
+        (x.disabled ? " disabled" : "") + (x.pressed != null ? ' aria-pressed="' + (x.pressed ? "true" : "false") + '"' : "") + ">" + esc(x.label) + "</button>";
+    });
+    if (!o.back && !o.noClose) h += '<button type="button" class="btn ghost" data-m="close">Cerrar</button>';
+    h += "</div>";
+    edMenuPanel.innerHTML = h;
+    edMenu.hidden = false;
+  }
+  function closeMenu() { edMenu.hidden = true; edMenuPanel.innerHTML = ""; menuState = null; }
+  edMenu.addEventListener("click", function (e) {
+    if (!menuState) return;
+    var t = e.target, b;
+    if (t.closest("[data-m='close']")) { closeMenu(); return; }
+    if ((b = t.closest("[data-mi]"))) { menuState.items[+b.getAttribute("data-mi")].pick(); return; }
+    if ((b = t.closest("[data-mx]"))) { menuState.extras[+b.getAttribute("data-mx")].pick(); return; }
+    if (t.closest("[data-mb]")) { menuState.back(); return; }
+    var fs = t.closest(".field-svg");
+    if (fs && menuState.onField) menuState.onField(e, fs);
+  });
+
+  function numItems(current, pick) {
+    var a = [];
+    for (var n = 1; n <= 10; n++) {
+      (function (n) { a.push({ label: String(n), sub: POS[n], pressed: current === n, pick: function () { pick(n); } }); })(n);
+    }
+    return a;
+  }
+  function numMenu(title, current, pick, back, extras) {
+    openMenu({ title: title, items: numItems(current, pick), cols: 5, back: back, extras: extras });
+  }
+
+  // Indicador de outs
+  function usedOuts() {
+    var sameInning = {};
+    state.equipos[ed.t].columnas.forEach(function (c) { if (c.n === ed.col.n) sameInning[c.id] = true; });
+    var cs = state.equipos[ed.t].casillas, used = [];
+    Object.keys(cs).forEach(function (k) {
+      var p = k.split(":");
+      if (sameInning[p[1]] && !(+p[0] === ed.row && p[1] === ed.col.id) && cs[k].out) used.push(cs[k].out);
+    });
+    return used;
+  }
+  function outsMenu() {
+    var used = usedOuts(), cur = ed.draft.out;
+    var items = [1, 2, 3].filter(function (n) { return used.indexOf(n) < 0; }).map(function (n) {
+      return { label: String(n), pressed: cur === n, pick: function () { change(function (d) { d.out = n; }); closeMenu(); } };
+    });
+    openMenu({
+      title: "Número de out en este inning",
+      cols: 3,
+      items: items,
+      note: items.length ? null : "Los 3 outs de este inning ya están anotados en otras casillas.",
+      extras: cur ? [{ label: "Quitar out", pick: function () { change(function (d) { d.out = null; }); closeMenu(); } }] : []
+    });
+  }
+
+  // Interior: cómo se produjo el out
+  function setOut(op) { change(function (d) { d.outPlay = op; }); closeMenu(); }
+  function centerMenu() {
+    var cur = ed.draft.outPlay;
+    function is(codes) { return !!cur && codes.indexOf(cur.code) >= 0; }
+    openMenu({
+      title: "¿Cómo fue el out?",
+      preview: cur ? outHTML(cur) : null,
+      cols: 2,
+      items: [
+        { label: "SO", sub: "Strike out", pressed: is(["K", "Kc"]), pick: soMenu },
+        { label: "Fly out", sub: "F, FF, L, P, IF", pressed: is(["F", "FF", "L", "P", "IF"]), pick: flyMenu },
+        { label: "Fielded out", sub: "Por ejemplo 6-4-3", pressed: is(["FO"]), pick: function () { seqMenu("FO"); } },
+        { label: "#u", sub: "Sin asistencia", pressed: is(["U"]), pick: function () {
+          numMenu("Out sin asistencia: ¿qué defensor?", is(["U"]) ? cur.n : null, function (n) { setOut({ code: "U", n: n }); }, centerMenu);
+        } },
+        { label: "SAC", sub: "SH o SF", pressed: is(["SH", "SF"]), pick: sacMenu },
+        { label: "CS", sub: "Robo fallido", pressed: is(["CS"]), pick: function () { seqMenu("CS"); } },
+        { label: "Otros", sub: "Salir antes, apelación", pressed: is(["LE", "AP"]), pick: otherMenu }
+      ],
+      extras: cur ? [{ label: "Quitar out", pick: function () { setOut(null); } }] : []
+    });
+  }
+  function soMenu() {
+    var cur = ed.draft.outPlay;
+    openMenu({
+      title: "Strike out", cols: 2, back: centerMenu,
+      items: [
+        { label: "K", sub: "Abanicando", pressed: !!cur && cur.code === "K", pick: function () { setOut({ code: "K" }); } },
+        { label: '<span class="kc">K</span>', sub: "Mirando", pressed: !!cur && cur.code === "Kc", pick: function () { setOut({ code: "Kc" }); } }
+      ]
+    });
+  }
+  function flyMenu() {
+    var cur = ed.draft.outPlay;
+    var defs = [["F", "Fly"], ["FF", "Foul fly"], ["L", "Línea"], ["P", "Pop"], ["IF", "Infield fly"]];
+    openMenu({
+      title: "Fly out", cols: 3, back: centerMenu,
+      items: defs.map(function (d) {
+        return { label: d[0] + "#", sub: d[1], pressed: !!cur && cur.code === d[0], pick: function () {
+          numMenu(d[0] + "#: ¿quién hizo el out?", cur && cur.code === d[0] ? cur.n : null, function (n) { setOut({ code: d[0], n: n }); }, flyMenu);
+        } };
+      })
+    });
+  }
+  function sacMenu() {
+    var cur = ed.draft.outPlay;
+    var defs = [["SH", "Toque de sacrificio"], ["SF", "Fly de sacrificio"]];
+    openMenu({
+      title: "Sacrificio", cols: 2, back: centerMenu,
+      items: defs.map(function (d) {
+        return { label: d[0], sub: d[1], pressed: !!cur && cur.code === d[0], pick: function () {
+          numMenu(d[0] + ": ¿qué defensor intervino?", cur && cur.code === d[0] ? cur.n : null,
+            function (n) { setOut({ code: d[0], n: n }); }, sacMenu,
+            [{ label: "Sin defensor", pick: function () { setOut({ code: d[0], n: null }); } }]);
+        } };
+      })
+    });
+  }
+  function otherMenu() {
+    var cur = ed.draft.outPlay;
+    openMenu({
+      title: "Otros outs de corredor", cols: 2, back: centerMenu,
+      items: [
+        { label: "LE", sub: "Salir antes de tiempo", pressed: !!cur && cur.code === "LE", pick: function () { setOut({ code: "LE" }); } },
+        { label: "AP", sub: "Apelación", pressed: !!cur && cur.code === "AP", pick: function () { setOut({ code: "AP" }); } }
+      ]
+    });
+  }
+  function seqMenu(code, seq, mod) {
+    var cur = ed.draft.outPlay;
+    if (seq === undefined) {
+      seq = cur && cur.code === code ? cur.seq.slice() : [];
+      mod = cur && cur.code === code ? (cur.mod || "") : "";
+    }
+    var min = code === "FO" ? 2 : 1;
+    var preview = seq.length
+      ? esc((code === "CS" ? "CS " : "") + seq.join("-") + (mod ? " " + mod : ""))
+      : '<span class="muted">Toca los defensores en orden</span>';
+    var extras = [{ label: "Borrar último", disabled: !seq.length, pick: function () { seqMenu(code, seq.slice(0, -1), mod); } }];
+    if (code === "FO") {
+      extras.push({ label: "DP", pressed: mod === "DP", pick: function () { seqMenu(code, seq, mod === "DP" ? "" : "DP"); } });
+      extras.push({ label: "TP", pressed: mod === "TP", pick: function () { seqMenu(code, seq, mod === "TP" ? "" : "TP"); } });
+    }
+    extras.push({ label: "Aceptar", cls: "primary", disabled: seq.length < min, pick: function () { setOut({ code: code, seq: seq, mod: mod }); } });
+    openMenu({
+      title: code === "FO" ? "Fielded out: defensores en orden" : "Robo fallido (CS): defensores en orden",
+      preview: preview,
+      items: numItems(null, function (n) { if (seq.length < 6) seqMenu(code, seq.concat(n), mod); }),
+      cols: 5,
+      extras: extras,
+      back: centerMenu
+    });
+  }
+
+  // Zona del bateador
+  function playLabel(p) { return p.code === "H" ? ["", "Sencillo", "Doble", "Triple"][p.n] : batterText(p); }
+  function setBatterPlay(p) { change(function (d) { d.batter.play = p; }); closeMenu(); }
+  function batterMenu() {
+    var b = ed.draft.batter;
+    openMenu({
+      title: "Bateador: cómo llegó a base", cols: 2,
+      items: [
+        { label: "Jugada", sub: b.play ? playLabel(b.play) : "Sin anotar", pick: batterPlayMenu },
+        { label: "HBI", sub: b.rbi ? b.rbi + (b.rbi > 1 ? " impulsadas" : " impulsada") : "Sin anotar", pick: rbiMenu }
+      ]
+    });
+  }
+  function batterPlayMenu() {
+    var p = ed.draft.batter.play;
+    function is(c) { return !!p && p.code === c; }
+    function simple(code, sub) { return { label: code, sub: sub, pressed: is(code), pick: function () { setBatterPlay({ code: code }); } }; }
+    openMenu({
+      title: "Jugada del bateador", cols: 4, back: batterMenu,
+      items: [
+        { label: "H", sub: "Hit", pressed: is("H"), pick: hitMenu },
+        simple("HR", "Home run"), simple("BB", "Bolas"), simple("iBB", "Intencional"),
+        simple("HbP", "Golpeado"), simple("FC", "Fielder's choice"),
+        { label: "E#", sub: "Error", pressed: is("E"), pick: function () {
+          numMenu("Error: ¿qué defensor?", is("E") ? p.n : null, function (n) { setBatterPlay({ code: "E", n: n }); }, batterPlayMenu);
+        } }
+      ],
+      extras: p ? [{ label: "Quitar jugada", pick: function () { setBatterPlay(null); } }] : []
+    });
+  }
+  function hitMenu() {
+    var p = ed.draft.batter.play;
+    openMenu({
+      title: "Hit", cols: 3, back: batterPlayMenu,
+      items: [1, 2, 3].map(function (n) {
+        return {
+          label: '<span class="hl-ico">' + new Array(n + 1).join("<i></i>") + "</span>",
+          sub: ["", "Sencillo", "Doble", "Triple"][n],
+          pressed: !!p && p.code === "H" && p.n === n,
+          pick: function () { setBatterPlay({ code: "H", n: n }); }
+        };
+      })
+    });
+  }
+  function rbiMenu() {
+    var cur = ed.draft.batter.rbi;
+    openMenu({
+      title: "Carreras impulsadas (HBI)", cols: 4, back: batterMenu,
+      items: [1, 2, 3, 4].map(function (n) {
+        return { label: String(n), sub: new Array(n + 1).join("•"), pressed: cur === n, pick: function () { change(function (d) { d.batter.rbi = n; }); closeMenu(); } };
+      }),
+      extras: cur ? [{ label: "Quitar", pick: function () { change(function (d) { d.batter.rbi = 0; }); closeMenu(); } }] : []
+    });
+  }
+
+  // Zonas de corredor
+  function runnerMenu(i) {
+    var r = ed.draft.runners[i];
+    openMenu({
+      title: "Avance " + RUN_ZONE[i], cols: 2,
+      items: [
+        { label: "Jugada", sub: runnerPlayText(r) || "En blanco", pick: function () { runnerPlayMenu(i); } },
+        { label: "Turno", sub: r.turno ? r.turno + ".º bate" : "Sin anotar", pick: function () { turnoMenu(i); } }
+      ]
+    });
+  }
+  function setRunnerPlay(i, play, e) {
+    change(function (d) { d.runners[i].play = play; d.runners[i].e = e; });
+    runnerMenu(i);
+  }
+  function runnerPlayMenu(i) {
+    var r = ed.draft.runners[i];
+    openMenu({
+      title: "Jugada del avance " + RUN_ZONE[i], cols: 3, back: function () { runnerMenu(i); },
+      items: [
+        { label: "SB", sub: "Robo", pressed: r.play === "SB", pick: function () { setRunnerPlay(i, "SB", null); } },
+        { label: "E#", sub: "Error (E1 WP, E2 PB)", pressed: r.play === "E", pick: function () {
+          numMenu("Error: ¿qué defensor?", r.play === "E" ? r.e : null, function (n) { setRunnerPlay(i, "E", n); }, function () { runnerPlayMenu(i); });
+        } },
+        { label: "—", sub: "En blanco (jugada del bateador)", pressed: !r.play, pick: function () { setRunnerPlay(i, "", null); } }
+      ]
+    });
+  }
+  function turnoMenu(i) {
+    var r = ed.draft.runners[i];
+    var items = [];
+    for (var n = 1; n <= 10; n++) {
+      (function (n) {
+        items.push({ label: String(n), pressed: r.turno === String(n), pick: function () { change(function (d) { d.runners[i].turno = String(n); }); closeMenu(); } });
+      })(n);
+    }
+    openMenu({
+      title: "¿En el turno de qué bateador avanzó?", cols: 5, items: items, back: function () { runnerMenu(i); },
+      extras: r.turno ? [{ label: "Quitar", pick: function () { change(function (d) { d.runners[i].turno = ""; }); closeMenu(); } }] : []
+    });
+  }
+
+  // Dirección del batazo
+  function fieldSVG(dir) {
+    var s = '<svg class="field-svg" viewBox="0 0 300 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Campo: toca hacia dónde fue el batazo">';
+    s += '<path d="M150 235 L8.6 93.6 A200 200 0 0 1 291.4 93.6 Z" fill="#E4EFE6"/>';
+    s += '<path d="M150 235 L105 190 L150 145 L195 190 Z" fill="#EADBC4" stroke="#000" stroke-width="1.2"/>';
+    s += '<path d="M150 235 L8.6 93.6 M150 235 L291.4 93.6" stroke="#000" stroke-width="1.5" fill="none"/>';
+    s += '<path d="M8.6 93.6 A200 200 0 0 1 291.4 93.6" stroke="#000" stroke-width="1.5" fill="none"/>';
+    if (dir) {
+      var len = Math.min(dir.r, 1.15) * 200;
+      s += arrowSVG(150, 235, 150 + Math.sin(dir.a) * len, 235 - Math.cos(dir.a) * len, "#1E8E3E", 3, 12);
+    }
+    return s + "</svg>";
+  }
+  function fieldMenu() {
+    var dir = ed.draft.dir;
+    openMenu({
+      title: "Toca hacia dónde fue el batazo",
+      body: fieldSVG(dir),
+      extras: dir ? [{ label: "Quitar dirección", pick: function () { change(function (d) { d.dir = null; }); closeMenu(); } }] : [],
+      onField: function (e, svg) {
+        var pt = svg.createSVGPoint();
+        pt.x = e.clientX; pt.y = e.clientY;
+        var p = pt.matrixTransform(svg.getScreenCTM().inverse());
+        var dx = p.x - 150, dy = p.y - 235, r = Math.hypot(dx, dy) / 200;
+        if (r < 0.05) return;
+        change(function (d) { d.dir = { a: +Math.atan2(dx, -dy).toFixed(3), r: +r.toFixed(3) }; });
+        closeMenu();
+        toast("Dirección del batazo anotada.");
+      }
+    });
+  }
+
+  // ---------- Barra superior ----------
+  document.querySelectorAll(".tab").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var t = b.getAttribute("data-tab");
+      if (t === active) return;
+      active = t;
+      render();
+      ensureView();
+    });
+  });
+  document.getElementById("fitBtn").addEventListener("click", fit);
+  document.getElementById("menuBtn").addEventListener("click", function () {
+    openPanel('<p class="panel-title">Opciones</p><div class="menu-list">' +
+      '<button type="button" class="btn ghost" data-act="home">Menú principal</button>' +
+      '<button type="button" class="btn ghost" data-act="export">Exportar este partido</button>' +
+      '<button type="button" class="btn ghost" data-act="extra">Añadir inning extra</button>' +
+      '<button type="button" class="btn ghost" data-act="cancel">Cerrar</button></div>', function (act) {
+      if (act === "home") { closePanel(); backToHome(); }
+      else if (act === "export") { closePanel(); if (currentRec) exportMenu(currentRec); }
+      else if (act === "extra") { closePanel(); addExtraInning(); }
+      else closePanel();
+    });
+  });
+
+  // ---------- Partidos guardados en el móvil ----------
+  var APP_VERSION = "4.0";
+  var store = (function () {
+    var dbp = null, useLS = false, LSK = "anotacion-softball:partidos";
+    function idb() {
+      if (!dbp) {
+        dbp = new Promise(function (res, rej) {
+          if (!window.indexedDB) { rej(new Error("sin almacén")); return; }
+          var rq = indexedDB.open("anotacion-softball", 1);
+          rq.onupgradeneeded = function () { rq.result.createObjectStore("partidos", { keyPath: "id" }); };
+          rq.onsuccess = function () { res(rq.result); };
+          rq.onerror = function () { rej(rq.error); };
+        });
+      }
+      return dbp;
+    }
+    function tx(mode, fn) {
+      return idb().then(function (db) {
+        return new Promise(function (res, rej) {
+          var t = db.transaction("partidos", mode), rq = fn(t.objectStore("partidos"));
+          t.oncomplete = function () { res(rq ? rq.result : undefined); };
+          t.onerror = function () { rej(t.error); };
+          t.onabort = function () { rej(t.error); };
+        });
+      });
+    }
+    function lsAll() { try { return JSON.parse(localStorage.getItem(LSK) || "{}"); } catch (e) { return {}; } }
+    return {
+      all: function () {
+        return tx("readonly", function (s) { return s.getAll(); }).catch(function () {
+          useLS = true;
+          var m = lsAll();
+          return Object.keys(m).map(function (k) { return m[k]; });
+        });
+      },
+      put: function (rec) {
+        if (useLS) { var m = lsAll(); m[rec.id] = rec; localStorage.setItem(LSK, JSON.stringify(m)); return Promise.resolve(); }
+        return tx("readwrite", function (s) { return s.put(rec); });
+      },
+      del: function (id) {
+        if (useLS) { var m = lsAll(); delete m[id]; localStorage.setItem(LSK, JSON.stringify(m)); return Promise.resolve(); }
+        return tx("readwrite", function (s) { return s.delete(id); });
+      }
+    };
+  })();
+
+  var games = [];
+  var currentRec = null;
+  var saveTimer = null;
+
+  function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
+  function byId(id) { return games.find(function (g) { return g.id === id; }); }
+  function nextVersion(fam) {
+    return games.filter(function (g) { return g.familia === fam; }).reduce(function (m, g) { return Math.max(m, g.version); }, 0) + 1;
+  }
+  function gameTitle(rec) {
+    var d = rec.data;
+    var parts = [(d.equipos.visitante.nombre || "Visitante") + " - " + (d.equipos.local.nombre || "Local")];
+    if (d.partido.fecha) parts.push(d.partido.fecha);
+    if (d.partido.hora) parts.push(d.partido.hora);
+    return parts.join(". ") + (rec.version > 1 ? " (v" + rec.version + ")" : "");
+  }
+  function fileBase(rec) {
+    return gameTitle(rec).normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^A-Za-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60) || "partido";
+  }
+  function fmtDate(ms) {
+    try {
+      return new Date(ms).toLocaleString("es-ES", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+    } catch (e) { return ""; }
+  }
+  function newRecord(data, familia, version) {
+    var id = uid(), now = Date.now();
+    return { id: id, familia: familia || id, version: version || 1, creado: now, modificado: now, data: data };
+  }
+
+  function persist() {
+    if (!currentRec) return;
+    currentRec.modificado = Date.now();
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(flushSave, 250);
+  }
+  function flushSave() {
+    clearTimeout(saveTimer);
+    saveTimer = null;
+    if (!currentRec) return Promise.resolve();
+    return store.put(currentRec).catch(function () {
+      if (storageOk) { storageOk = false; toast("No se ha podido guardar en este móvil. Exporta el partido para no perderlo."); }
+    });
+  }
+  document.addEventListener("visibilitychange", function () { if (document.visibilityState === "hidden") flushSave(); });
+  window.addEventListener("pagehide", function () { flushSave(); });
+
+  // ---------- Pantallas ----------
+  var homeView = document.getElementById("homeView");
+  var listView = document.getElementById("listView");
+  var sheetView = document.getElementById("sheetView");
+  var listBody = document.getElementById("listBody");
+  var listActions = document.getElementById("listActions");
+  var fileInput = document.getElementById("fileInput");
+  var currentView = "home";
+  var listMode = "open";
+  var selected = {};
+
+  function showView(name) {
+    homeView.hidden = name !== "home";
+    listView.hidden = name !== "list";
+    sheetView.hidden = name !== "sheet";
+    currentView = name;
+  }
+  function enterLevel(name) {
+    if (history.state && history.state.v && history.state.v !== "home") history.replaceState({ v: name }, "");
+    else history.pushState({ v: name }, "");
+    showView(name);
+  }
+  function backToHome() {
+    if (history.state && history.state.v && history.state.v !== "home") history.back();
+    else goHome();
+  }
+  function goHome() {
+    flushSave();
+    closePanel();
+    if (ed) closeEditor();
+    currentRec = null;
+    updateHome();
+    showView("home");
+  }
+  window.addEventListener("popstate", function () {
+    if (ed) {
+      history.pushState({ v: currentView }, "");
+      if (ed.hist.length) {
+        openMenu({
+          title: "¿Descartar los cambios de esta casilla?",
+          extras: [{ label: "Seguir anotando", pick: closeMenu }, { label: "Descartar", cls: "danger", pick: closeEditor }],
+          noClose: true
+        });
+      } else closeEditor();
+      return;
+    }
+    if (!overlay.hidden) { history.pushState({ v: currentView }, ""); closePanel(); return; }
+    goHome();
+  });
+
+  function updateHome() {
+    var n = games.length;
+    document.getElementById("homeOpenSub").textContent = n === 0 ? "Todavía no hay partidos guardados"
+      : n === 1 ? "1 partido guardado en este móvil" : n + " partidos guardados en este móvil";
+  }
+
+  function openGame(rec) {
+    currentRec = rec;
+    state = rec.data;
+    active = "visitante";
+    views = {};
+    closePanel();
+    enterLevel("sheet");
+    render();
+    ensureView();
+  }
+
+  // ---------- Listado ----------
+  function showList(mode) {
+    listMode = mode;
+    selected = {};
+    document.getElementById("listTitle").textContent = mode === "open" ? "Abrir partido" : "Exportar partido";
+    enterLevel("list");
+    renderList();
+  }
+  function renderList() {
+    var sorted = games.slice().sort(function (a, b) { return b.modificado - a.modificado; });
+    var h = [];
+    if (!sorted.length) {
+      h.push('<div class="list-empty"><p>Todavía no hay partidos en este móvil.</p>' +
+        '<button type="button" class="btn primary" data-new="1">Nuevo partido</button></div>');
+    }
+    sorted.forEach(function (g) {
+      var text = '<span class="game-text"><span class="game-title">' + esc(gameTitle(g)) + '</span>' +
+        '<span class="game-sub">Modificado: ' + esc(fmtDate(g.modificado)) + "</span></span>";
+      if (listMode === "open") {
+        h.push('<div class="game"><button type="button" class="game-main" data-open="' + g.id + '">' + text + "</button>" +
+          '<button type="button" class="game-del" data-del="' + g.id + '">Borrar</button></div>');
+      } else {
+        h.push('<div class="game"><button type="button" class="game-main" data-sel="' + g.id + '" aria-pressed="' + (selected[g.id] ? "true" : "false") + '">' +
+          '<span class="check" aria-hidden="true">✓</span>' + text + "</button></div>");
+      }
+    });
+    listBody.innerHTML = h.join("");
+    var count = Object.keys(selected).length;
+    listActions.hidden = listMode !== "export" || !sorted.length;
+    document.getElementById("expJson").disabled = count < 1;
+    document.getElementById("expPdf").disabled = count !== 1;
+    document.getElementById("listHint").textContent = listMode === "export"
+      ? (count ? count + (count === 1 ? " partido marcado" : " partidos marcados") : "Marca los partidos que quieres exportar")
+      : "Toca un partido para abrirlo";
+  }
+
+  listBody.addEventListener("click", function (e) {
+    var b;
+    if (e.target.closest("[data-new]")) { createGame(); return; }
+    if ((b = e.target.closest("[data-sel]"))) {
+      var id = b.getAttribute("data-sel");
+      if (selected[id]) delete selected[id]; else selected[id] = true;
+      renderList();
+      return;
+    }
+    if ((b = e.target.closest("[data-open]"))) { askOpen(byId(b.getAttribute("data-open"))); return; }
+    if ((b = e.target.closest("[data-del]"))) { askDelete(byId(b.getAttribute("data-del"))); }
+  });
+
+  function askOpen(rec) {
+    if (!rec) return;
+    var v = nextVersion(rec.familia);
+    openPanel('<p class="panel-title">' + esc(gameTitle(rec)) + '</p><div class="menu-list">' +
+      '<button type="button" class="btn primary" data-act="orig">Abrir el original</button>' +
+      '<button type="button" class="btn ghost" data-act="copy">Abrir una copia (v' + v + ")</button>" +
+      '<button type="button" class="btn ghost" data-act="cancel">Cancelar</button></div>', function (act) {
+      if (act === "orig") openGame(rec);
+      else if (act === "copy") {
+        var copy = newRecord(JSON.parse(JSON.stringify(rec.data)), rec.familia, v);
+        games.push(copy);
+        store.put(copy);
+        openGame(copy);
+        toast("Abierta la copia v" + v + ". El original no cambia.");
+      } else closePanel();
+    });
+    openedAt = 0;
+  }
+  function askDelete(rec) {
+    if (!rec) return;
+    openPanel('<p class="panel-title">¿Borrar este partido?</p><p class="panel-text">' + esc(gameTitle(rec)) +
+      " se borrará de este móvil. No se puede deshacer.</p>" +
+      '<div class="panel-actions"><button type="button" class="btn ghost" data-act="cancel">Cancelar</button>' +
+      '<button type="button" class="btn danger" data-act="del">Borrar</button></div>', function (act) {
+      closePanel();
+      if (act !== "del") return;
+      store.del(rec.id).then(function () {
+        games = games.filter(function (g) { return g.id !== rec.id; });
+        renderList();
+        toast("Partido borrado.");
+      }).catch(function () { toast("No se ha podido borrar."); });
+    });
+    openedAt = 0;
+  }
+
+  function createGame() {
+    var rec = newRecord(blankGame());
+    games.push(rec);
+    store.put(rec);
+    openGame(rec);
+  }
+
+  // ---------- Exportar ----------
+  function download(blob, name) {
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url; a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+    toast("Archivo guardado en Descargas: " + name);
+  }
+  function shareOrDownload(blob, name) {
+    var file = null;
+    try { file = new File([blob], name, { type: blob.type }); } catch (e) { file = null; }
+    if (file && navigator.canShare && navigator.share) {
+      var ok = false;
+      try { ok = navigator.canShare({ files: [file] }); } catch (e) { ok = false; }
+      if (ok) {
+        navigator.share({ files: [file], title: name }).catch(function (err) {
+          if (!err || err.name !== "AbortError") download(blob, name);
+        });
+        return;
+      }
+    }
+    download(blob, name);
+  }
+  function exportPackage(recs) {
+    flushSave();
+    var pkg = { formato: "anotacion-softball", version: 1, exportado: new Date().toISOString(), partidos: recs };
+    var name = recs.length === 1 ? fileBase(recs[0]) + ".json"
+      : "partidos-softball-" + new Date().toISOString().slice(0, 10) + ".json";
+    shareOrDownload(new Blob([JSON.stringify(pkg)], { type: "application/json" }), name);
+  }
+  function printGame(rec) {
+    flushSave();
+    var saved = state;
+    state = rec.data;
+    var html = ["visitante", "local"].map(function (t) {
+      return '<div class="print-page"><div class="print-sheet">' + sheetHTML(t) + "</div></div>";
+    }).join("");
+    state = saved;
+    var pa = document.getElementById("printArea");
+    pa.innerHTML = html;
+    pa.classList.add("measure");
+    pa.querySelectorAll(".print-page").forEach(function (page) {
+      var sh = page.firstChild, w = sh.offsetWidth, h = sh.offsetHeight;
+      var z = Math.min(1040 / w, 715 / h, 1);
+      page.style.width = Math.ceil(w * z) + "px";
+      page.style.height = Math.ceil(h * z) + "px";
+      sh.style.transform = "scale(" + z.toFixed(4) + ")";
+    });
+    pa.classList.remove("measure");
+    var oldTitle = document.title;
+    document.title = fileBase(rec);
+    window.addEventListener("afterprint", function restore() {
+      document.title = oldTitle;
+      window.removeEventListener("afterprint", restore);
+    });
+    window.print();
+  }
+  function exportMenu(rec) {
+    openPanel('<p class="panel-title">Exportar ' + esc(gameTitle(rec)) + '</p><div class="menu-list">' +
+      '<button type="button" class="btn ghost" data-act="json">Archivo para otro dispositivo (.json)</button>' +
+      '<button type="button" class="btn ghost" data-act="pdf">Hoja en PDF</button>' +
+      '<button type="button" class="btn ghost" data-act="cancel">Cancelar</button></div>', function (act) {
+      closePanel();
+      if (act === "json") exportPackage([rec]);
+      else if (act === "pdf") printGame(rec);
+    });
+    openedAt = 0;
+  }
+  document.getElementById("expJson").addEventListener("click", function () {
+    var recs = games.filter(function (g) { return selected[g.id]; });
+    if (recs.length) exportPackage(recs);
+  });
+  document.getElementById("expPdf").addEventListener("click", function () {
+    var recs = games.filter(function (g) { return selected[g.id]; });
+    if (recs.length === 1) printGame(recs[0]);
+  });
+
+  // ---------- Cargar ----------
+  fileInput.addEventListener("change", function () {
+    var f = fileInput.files && fileInput.files[0];
+    fileInput.value = "";
+    if (!f) return;
+    f.text().then(importText).catch(function () { toast("No se ha podido leer el archivo."); });
+  });
+  function askConflict(rec, go) {
+    openPanel('<p class="panel-title">Este partido ya está en el móvil</p><p class="panel-text">' + esc(gameTitle(rec)) + "</p>" +
+      '<div class="menu-list"><button type="button" class="btn ghost" data-act="replace">Reemplazar el del móvil</button>' +
+      '<button type="button" class="btn ghost" data-act="copy">Guardar como copia</button>' +
+      '<button type="button" class="btn ghost" data-act="skip">Omitir</button></div>', function (act) {
+      if (act === "cancel") act = "skip";
+      closePanel();
+      go(act);
+    });
+    openedAt = 0;
+  }
+  function importText(txt) {
+    var pkg = null;
+    try { pkg = JSON.parse(txt); } catch (e) { pkg = null; }
+    var list = pkg && pkg.formato === "anotacion-softball" && Array.isArray(pkg.partidos) ? pkg.partidos : null;
+    if (!list) { toast("Este archivo no es un partido de esta app."); return; }
+    var valid = list.filter(function (r) { return r && r.id && r.data && isValid(r.data); }).map(function (r) {
+      return {
+        id: String(r.id), familia: String(r.familia || r.id), version: +r.version || 1,
+        creado: +r.creado || Date.now(), modificado: +r.modificado || Date.now(), data: migrate(r.data)
+      };
+    });
+    if (!valid.length) { toast("El archivo no contiene partidos válidos."); return; }
+    var added = 0;
+    (function next(i) {
+      if (i >= valid.length) {
+        updateHome();
+        toast(added ? (added === 1 ? "1 partido cargado." : added + " partidos cargados.") : "No se ha cargado ningún partido.");
+        if (added) showList("open");
+        return;
+      }
+      var r = valid[i];
+      function go(how) {
+        if (how === "skip") { next(i + 1); return; }
+        if (how === "copy") { r.id = uid(); r.version = nextVersion(r.familia); r.modificado = Date.now(); }
+        if (how === "replace") games = games.filter(function (g) { return g.id !== r.id; });
+        if (games.some(function (g) { return g.familia === r.familia && g.version === r.version && g.id !== r.id; })) {
+          r.version = nextVersion(r.familia);
+        }
+        games.push(r);
+        store.put(r).then(function () { added++; next(i + 1); }).catch(function () { toast("No se ha podido guardar un partido."); next(i + 1); });
+      }
+      if (byId(r.id)) askConflict(r, go); else go("new");
+    })(0);
+  }
+
+  // ---------- Menú inicial ----------
+  document.getElementById("homeNew").addEventListener("click", createGame);
+  document.getElementById("homeOpen").addEventListener("click", function () { showList("open"); });
+  document.getElementById("homeLoad").addEventListener("click", function () { fileInput.click(); });
+  document.getElementById("homeExport").addEventListener("click", function () { showList("export"); });
+  document.getElementById("listBack").addEventListener("click", backToHome);
+  document.getElementById("appVersion").textContent = "Versión " + APP_VERSION;
+
+  function migrateLegacy() {
+    var raw = null;
+    try { raw = localStorage.getItem(KEY); } catch (e) { raw = null; }
+    if (!raw) return null;
+    var g = null;
+    try { g = JSON.parse(raw); } catch (e) { g = null; }
+    if (!g || !isValid(g)) return null;
+    var rec = newRecord(migrate(g));
+    games.push(rec);
+    return store.put(rec).then(function () {
+      try { localStorage.removeItem(KEY); } catch (e) { /* nada */ }
+      toast("Tu partido anterior está guardado en «Abrir partido».");
+    });
+  }
+  function initApp() {
+    history.replaceState({ v: "home" }, "");
+    showView("home");
+    store.all().then(function (list) {
+      games = (list || []).filter(function (r) { return r && r.data && isValid(r.data); });
+      games.forEach(function (r) { migrate(r.data); });
+      return migrateLegacy();
+    }).catch(function () { /* sin partidos */ }).then(updateHome);
+    if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) {
+      navigator.serviceWorker.register("./sw.js").catch(function () { /* sin modo offline */ });
+    }
+    if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(function () { /* nada */ });
+  }
+
+  // ---------- Inicio ----------
+  initApp();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { ensureView(); });
+})();
+</script>
+</body>
+</html>
