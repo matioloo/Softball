@@ -1,6 +1,6 @@
 // Guarda la app en el móvil para que funcione sin conexión.
 // Al publicar una versión nueva, cambiar VERSION para que los móviles la descarguen.
-var VERSION = "softball-4.0";
+var VERSION = "softball-5.0";
 var SHELL = [
   "./",
   "./index.html",

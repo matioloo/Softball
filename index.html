@@ -512,7 +512,7 @@ table { border-collapse: collapse; table-layout: fixed; }
   transition: opacity 0.2s, transform 0.2s;
 }
 #toast.show { opacity: 1; transform: translate(-50%, 0); }
-#editor:not([hidden]) ~ #toast { bottom: calc(env(safe-area-inset-bottom, 0px) + 140px); }
+#editor:not([hidden]) ~ #toast { bottom: auto; top: calc(env(safe-area-inset-top, 0px) + 64px); }
 @media (prefers-reduced-motion: reduce) { #toast { transition: none; } }
 .grid th.colhead { cursor: pointer; }
 
@@ -542,7 +542,20 @@ table { border-collapse: collapse; table-layout: fixed; }
 .ed-svg .hz:active, .ed-svg .hb:active { fill: rgba(30, 111, 217, 0.16); }
 .ed-svg .hl:active { stroke: rgba(30, 111, 217, 0.2); }
 .ed-svg .guide { stroke: #B5B5B5; stroke-width: 0.6; stroke-dasharray: 2 2; }
-.ed-extra { min-height: 52px; display: flex; align-items: center; justify-content: center; }
+.ed-extra { min-height: 52px; display: flex; flex-direction: column; align-items: stretch; gap: 8px; }
+.ed-count { margin: 0; text-align: center; font: 400 15px/1.3 "Barlow", Arial, sans-serif; color: var(--chrome-muted); }
+.ed-count b { color: var(--panel-fg); font-weight: 600; font-size: 17px; }
+.ed-pitch { display: flex; gap: 8px; }
+.pbtn { flex: 1; min-height: 52px; border: 0; border-radius: 12px; background: #E6EE3A; color: #14211A; font: 600 18px/1 "Barlow", Arial, sans-serif; touch-action: manipulation; }
+.pbtn:active { filter: brightness(0.9); }
+.ed-toggles { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+.btn.chip { min-height: 40px; padding: 6px 12px; font-size: 14px; }
+.btn.wide { width: 100%; margin-top: 10px; }
+.form-row { display: flex; gap: 8px; margin-bottom: 4px; }
+.form-row input { min-width: 0; }
+.form-row input:first-child { flex: 0 0 72px; }
+.form-row input:last-child { flex: 1; }
+.form-label { margin: 12px 0 6px; font: 600 14px/1.2 "Barlow", Arial, sans-serif; color: var(--chrome-muted); }
 .ed-hint { margin: 0; font: 400 15px/1.35 "Barlow", Arial, sans-serif; color: var(--chrome-muted); text-align: center; }
 .ed-bottom { display: flex; justify-content: flex-end; gap: 8px; }
 .ed-bottom .btn.primary { min-width: 92px; }
@@ -656,6 +669,8 @@ table { border-collapse: collapse; table-layout: fixed; }
     { k: "p", h: "P", w: 40, kind: "num", label: "lanzamientos (P)" }
   ];
   var TEAM_LABEL = { visitante: "Visitante", local: "Local" };
+  // Columnas de la tabla de lanzadores que se calculan solas (ER, nombre y dorsal se escriben)
+  var AUTO_PITCH = ["ip", "h", "r", "bb", "k", "hr", "p"];
 
   function blankPlayer() { return { dorsal: "", nombre: "", pos: "" }; }
   function blankTeam() {
@@ -739,27 +754,44 @@ table { border-collapse: collapse; table-layout: fixed; }
       outPlay: null,
       batter: { play: null, rbi: 0 },
       runners: [{ play: "", e: null, turno: "" }, { play: "", e: null, turno: "" }, { play: "", e: null, turno: "" }],
-      desempate: false
+      desempate: false,
+      pitches: { b: 0, s: 0, f: 0 },
+      cambioLanz: null,
+      sust: false
     };
   }
+  // Casillas guardadas con versiones anteriores: se completan los campos nuevos
+  function normCell(c) {
+    if (!c.pitches) c.pitches = { b: 0, s: 0, f: 0 };
+    if (c.cambioLanz === undefined) c.cambioLanz = null;
+    if (c.sust === undefined) c.sust = false;
+    return c;
+  }
+  function pitchesOf(c) { return c && c.pitches ? c.pitches : { b: 0, s: 0, f: 0 }; }
+  function hasPitches(c) { var p = pitchesOf(c); return p.b + p.s + p.f > 0; }
   function cloneCell(c) { return JSON.parse(JSON.stringify(c)); }
   function isEmptyCell(c) {
     var e = emptyCell();
     return JSON.stringify(c.lines) === JSON.stringify(e.lines) &&
       JSON.stringify(c.effort) === JSON.stringify(e.effort) &&
       !c.dir && !c.out && !c.outPlay && !c.batter.play && !c.batter.rbi && !c.desempate &&
+      !hasPitches(c) && !c.cambioLanz && !c.sust &&
       c.runners.every(function (r) { return !r.play && !r.turno; });
   }
   function f1(n) { return Math.round(n * 10) / 10; }
 
   function outText(op) {
     if (!op) return "";
+    var md = op.mod ? " " + op.mod : "";
     switch (op.code) {
       case "K": case "Kc": return "K";
-      case "F": case "FF": case "L": case "P": case "IF": return op.code + op.n;
-      case "FO": return op.seq.join("-") + (op.mod ? " " + op.mod : "");
-      case "U": return op.n + "u";
-      case "SH": case "SF": return op.code + (op.n || "");
+      case "F": case "FF": case "L": case "P": case "IF": return op.code + op.n + md;
+      case "FO": return op.seq.join("-") + md;
+      case "U": return op.n + "u" + md;
+      case "SH":
+        if (op.seq) return "SH " + (op.seq.length === 1 ? op.seq[0] + "u" : op.seq.join("-")) + md;
+        return "SH" + (op.n || "") + md;
+      case "SF": return "SF" + (op.n || "") + md;
       case "CS": return "CS " + op.seq.join("-");
       default: return op.code;
     }
@@ -796,8 +828,9 @@ table { border-collapse: collapse; table-layout: fixed; }
       f1(ex - nx * hs * 0.7) + "," + f1(ey - ny * hs * 0.7) + '" fill="#000"/>';
   }
 
-  function cellSVG(c, interactive) {
+  function cellSVG(c, interactive, opts) {
     c = c || emptyCell();
+    opts = opts || {};
     var s = [], k;
     s.push('<svg viewBox="0 0 120 110" xmlns="http://www.w3.org/2000/svg" font-family="Barlow Condensed, Arial Narrow, Arial, sans-serif"' +
       (interactive ? ' class="ed-svg" id="edSvg"' : ' aria-hidden="true"') + ">");
@@ -807,8 +840,9 @@ table { border-collapse: collapse; table-layout: fixed; }
       s.push('<rect class="hz" data-zone="r2" x="0" y="57" width="60" height="53"/>');
       s.push('<rect class="hz" data-zone="batter" x="60" y="57" width="60" height="53"/>');
       s.push('<path class="guide" d="M60 0 V33 M60 81 V110 M0 57 H36 M84 57 H120"/>');
+      s.push('<rect class="hz" data-zone="count" x="0" y="0" width="30" height="22"/>');
     }
-    var run = c.lines.every(function (v) { return v === 1; });
+    var run = c.lines.every(function (v) { return v === 1; }) || (!!c.batter.play && c.batter.play.code === "HR");
     if (c.dir) { var e = dirEnd(c.dir); s.push('<g opacity="0.8">' + arrowSVG(60, 81, e[0], e[1], "#1E8E3E", 1.8, 5) + "</g>"); }
     s.push('<polygon points="' + B.map(function (p) { return p.join(","); }).join(" ") + '" fill="' + (run ? "#000" : "none") +
       '" stroke="#000" stroke-width="1.5" stroke-linejoin="round"/>');
@@ -856,7 +890,20 @@ table { border-collapse: collapse; table-layout: fixed; }
       if (r.turno) s.push('<text x="' + p[0] + '" y="' + (p[1] + (t ? 13 : 5)) + '" text-anchor="middle" font-size="14" font-weight="600">' + esc(r.turno) + "</text>");
     });
 
-    if (c.out === 3) s.push('<line x1="105" y1="110" x2="120" y2="95" stroke="#000" stroke-width="3"/>');
+    // Cuenta: 3 casillas de bolas, 2 de strikes y una rayita por foul con dos strikes
+    var pc = pitchesOf(c);
+    if (interactive || hasPitches(c)) {
+      for (k = 0; k < 3; k++) s.push('<rect x="' + (3 + k * 7.5) + '" y="3" width="6" height="6" fill="' + (k < pc.b ? "#000" : "#FFF") + '" stroke="#000" stroke-width="0.8"/>');
+      for (k = 0; k < 2; k++) s.push('<rect x="' + (3 + k * 7.5) + '" y="12" width="6" height="6" fill="' + (k < pc.s ? "#000" : "#FFF") + '" stroke="#000" stroke-width="0.8"/>');
+      var nf = Math.min(pc.f, 12);
+      for (k = 0; k < nf; k++) s.push('<line x1="' + f1(19 + k * 2.4) + '" y1="12" x2="' + f1(19 + k * 2.4) + '" y2="18" stroke="#000" stroke-width="0.9"/>');
+      if (pc.f > 12) s.push('<text x="' + f1(19 + 12 * 2.4 + 1) + '" y="18" font-size="7" font-weight="700">+</text>');
+    }
+    // Fin de entrada: diagonal en el último bateador del inning
+    if (opts.closer) s.push('<line x1="105" y1="110" x2="120" y2="95" stroke="#000" stroke-width="3"/>');
+    // Sustitución (borde derecho) y cambio de lanzador (borde inferior)
+    if (c.sust) s.push('<line x1="118.5" y1="0" x2="118.5" y2="110" stroke="#000" stroke-width="3"/>');
+    if (c.cambioLanz) s.push('<line x1="0" y1="108.5" x2="120" y2="108.5" stroke="#000" stroke-width="3"/>');
     if (c.out) {
       s.push('<circle cx="108" cy="12" r="10" fill="none" stroke="#C8102E" stroke-width="2"/>' +
         '<text x="108" y="17.2" text-anchor="middle" font-size="15" font-weight="700" fill="#C8102E">' + c.out + "</text>");
@@ -886,6 +933,8 @@ table { border-collapse: collapse; table-layout: fixed; }
     var p = state.partido;
     var base = "equipos." + t;
     var st = computeStats(t);
+    var closers = closerCells(team);
+    var pst = pitcherStats(t);
     var h = [];
 
     h.push('<div class="game-head">');
@@ -915,9 +964,9 @@ table { border-collapse: collapse; table-layout: fixed; }
       h.push('<tr class="r-top"><td class="ord' + (st.next.row === i ? " next" : "") + '" rowspan="2">' + (i + 1) + "</td>");
       h.push('<td class="num split fld"' + fa(tp + ".dorsal", "dorsal", "Dorsal del titular del " + ord) + ">" + esc(tit.dorsal) + "</td>");
       h.push('<td class="name split fld"' + fa(tp + ".nombre", "text", "Titular del " + ord) + ">" + esc(tit.nombre) + "</td>");
-      h.push('<td class="pos split fld"' + fa(tp + ".pos", "pos", "Posición del titular del " + ord) + ">" + esc(tit.pos) + "</td>");
+      h.push('<td class="pos split fld"' + fa(tp + ".pos", "pos", "Posición del titular del " + ord) + ">" + esc(posTrail(slot, "titular")) + "</td>");
       cols.forEach(function (c) {
-        h.push('<td class="ab' + (st.next.row === i && st.next.colId === c.id ? " next" : "") + '" rowspan="2" data-ab="' + i + ":" + c.id + '">' + cellSVG(team.casillas[i + ":" + c.id], false) + "</td>");
+        h.push('<td class="ab' + (st.next.row === i && st.next.colId === c.id ? " next" : "") + '" rowspan="2" data-ab="' + i + ":" + c.id + '">' + cellSVG(team.casillas[i + ":" + c.id], false, { closer: !!closers[i + ":" + c.id] }) + "</td>");
       });
       STATS.forEach(function (k) { var r = st.rows[i]; h.push('<td class="stat" rowspan="2">' + (r.any ? r[k] : "") + "</td>"); });
       h.push("</tr>");
@@ -930,7 +979,7 @@ table { border-collapse: collapse; table-layout: fixed; }
       h.push('<span class="inn fld"' + fa(sp + ".inning", "inning", "Inning en que entra el sustituto del " + ord) + ">" +
         (sub.inning ? "Inn " + esc(sub.inning) : '<span class="ph">Inn</span>') + "</span>");
       h.push("</div></td>");
-      h.push('<td class="pos split fld"' + fa(sp + ".pos", "pos", "Posición del sustituto del " + ord) + ">" + esc(sub.pos) + "</td>");
+      h.push('<td class="pos split fld"' + fa(sp + ".pos", "pos", "Posición del sustituto del " + ord) + ">" + esc(posTrail(slot, "sustituto")) + "</td>");
       h.push("</tr>");
     });
     h.push("</tbody></table>");
@@ -965,6 +1014,10 @@ table { border-collapse: collapse; table-layout: fixed; }
     team.lanzadores.forEach(function (row, i) {
       h.push("<tr>");
       PITCH_COLS.forEach(function (pc) {
+        if (AUTO_PITCH.indexOf(pc.k) >= 0) {
+          h.push('<td class="auto">' + (pst[i] ? esc(pst[i][pc.k]) : "") + "</td>");
+          return;
+        }
         h.push('<td class="fld' + (pc.k === "nombre" ? " pname" : "") + '"' +
           fa(base + ".lanzadores." + i + "." + pc.k, pc.kind, "Lanzador " + (i + 1) + ": " + pc.label) + ">" + esc(row[pc.k]) + "</td>");
       });
@@ -1164,6 +1217,116 @@ table { border-collapse: collapse; table-layout: fixed; }
     ensureView();
   }
 
+  // ---------- Cambios de posición y sustituciones ----------
+  function inningNumbers(t) {
+    var ns = [];
+    state.equipos[t].columnas.forEach(function (c) { if (ns.indexOf(c.n) < 0) ns.push(c.n); });
+    return ns;
+  }
+  function slotName(slot, n) { var p = n ? activeAt(slot, n) : slot.titular; return p.nombre || "sin nombre"; }
+  function afterLineup() { persist(); render(); ensureView(); }
+  function posChangePanel(t, row) {
+    var slot = state.equipos[t].lineup[row];
+    if (!slot.cambiosPos) slot.cambiosPos = [];
+    var h = '<p class="panel-title">Cambios de posición del ' + (row + 1) + ".º bate</p>";
+    if (slot.cambiosPos.length) {
+      h += '<div class="menu-list">';
+      slot.cambiosPos.forEach(function (ch, i) {
+        h += '<button type="button" class="btn ghost" data-act="del" data-val="' + i + '">Inning ' + esc(ch.inning) + ": pasa a " + esc(ch.pos) + " (" + esc(POS[ch.pos] || "") + ") · Quitar</button>";
+      });
+      h += "</div>";
+    } else h += '<p class="panel-text">Este jugador no ha cambiado de posición.</p>';
+    h += '<div class="panel-actions"><button type="button" class="btn ghost" data-act="cancel">Cerrar</button><button type="button" class="btn primary" data-act="add">Añadir cambio</button></div>';
+    openPanel(h, function (act, val) {
+      if (act === "del") { slot.cambiosPos.splice(+val, 1); afterLineup(); posChangePanel(t, row); }
+      else if (act === "add") pickInning("¿Desde qué inning cambia de posición?", t, null, function (n) {
+        pickPos("¿A qué posición pasa " + slotName(slot, n) + " desde el inning " + n + "?", null, function (p) {
+          addPosChange(slot, n, p); afterLineup(); posChangePanel(t, row);
+        }, function () { posChangePanel(t, row); });
+      }, function () { posChangePanel(t, row); });
+      else closePanel();
+    });
+  }
+  function addPosChange(slot, n, p) {
+    if (!slot.cambiosPos) slot.cambiosPos = [];
+    slot.cambiosPos = slot.cambiosPos.filter(function (ch) { return +ch.inning !== +n; });
+    slot.cambiosPos.push({ inning: String(n), pos: String(p) });
+    slot.cambiosPos.sort(function (a, b) { return a.inning - b.inning; });
+  }
+  function pickInning(title, t, cur, pick, back) {
+    var h = '<p class="panel-title">' + esc(title) + '</p><div class="choices cols-4">';
+    inningNumbers(t).forEach(function (n) {
+      h += '<button type="button" class="choice" data-act="pick" data-val="' + n + '" aria-pressed="' + (+cur === n ? "true" : "false") + '">' + n + "</button>";
+    });
+    h += '</div><div class="panel-actions"><button type="button" class="btn ghost" data-act="back">Atrás</button></div>';
+    openPanel(h, function (act, val) { if (act === "pick") pick(+val); else back(); });
+  }
+  function pickPos(title, cur, pick, back, extraLabel) {
+    var h = '<p class="panel-title">' + esc(title) + '</p><div class="choices">';
+    Object.keys(POS).forEach(function (k) {
+      h += '<button type="button" class="choice" data-act="pick" data-val="' + k + '" aria-pressed="' + (String(cur) === k ? "true" : "false") + '">' + k + "<small>" + esc(POS[k]) + "</small></button>";
+    });
+    h += '</div><div class="panel-actions">' + (extraLabel ? '<button type="button" class="btn ghost push-left" data-act="none">' + esc(extraLabel) + "</button>" : "") +
+      '<button type="button" class="btn ghost" data-act="back">' + (back ? "Atrás" : "Cancelar") + "</button></div>";
+    openPanel(h, function (act, val) {
+      if (act === "pick") pick(val);
+      else if (act === "none") pick(null);
+      else if (back) back(); else closePanel();
+    });
+  }
+  // Ficha del jugador que entra: dorsal, nombre, posición e inning
+  function substitutionForm(t, row, defInning) {
+    var team = state.equipos[t], slot = team.lineup[row], sub = slot.sustituto;
+    var ns = inningNumbers(t);
+    var f = { pos: sub.pos || "", inning: sub.inning ? +sub.inning : (ns.indexOf(defInning) >= 0 ? defInning : ns[ns.length - 1]) };
+    var h = '<p class="panel-title">Entra por el ' + (row + 1) + ".º bate (" + esc(slot.titular.nombre || "titular") + ")</p>" +
+      (sub.nombre ? '<p class="panel-text">Esta fila ya tiene sustituto: al guardar se cambian sus datos.</p>' : "") +
+      '<div class="form-row"><input id="subDorsal" type="text" inputmode="text" maxlength="4" placeholder="#" autocomplete="off" autocapitalize="characters" value="' + esc(sub.dorsal) + '">' +
+      '<input id="subNombre" type="text" maxlength="60" placeholder="Nombre" autocomplete="off" autocapitalize="words" value="' + esc(sub.nombre) + '"></div>' +
+      '<p class="form-label">Posición</p><div class="choices">';
+    Object.keys(POS).forEach(function (k) {
+      h += '<button type="button" class="choice" data-act="pos" data-val="' + k + '" aria-pressed="' + (String(f.pos) === k ? "true" : "false") + '">' + k + "<small>" + esc(POS[k]) + "</small></button>";
+    });
+    h += '</div><p class="form-label">Entra en el inning</p><div class="choices cols-5">';
+    ns.forEach(function (n) {
+      h += '<button type="button" class="choice" data-act="inn" data-val="' + n + '" aria-pressed="' + (f.inning === n ? "true" : "false") + '">' + n + "</button>";
+    });
+    h += '</div><div class="panel-actions"><button type="button" class="btn ghost" data-act="cancel">Más tarde</button><button type="button" class="btn primary" data-act="save">Guardar</button></div>';
+    openPanel(h, function (act, val) {
+      if (act === "pos" || act === "inn") {
+        if (act === "pos") f.pos = val; else f.inning = +val;
+        panel.querySelectorAll('[data-act="' + act + '"]').forEach(function (b) { b.setAttribute("aria-pressed", b.getAttribute("data-val") === String(val) ? "true" : "false"); });
+        return;
+      }
+      if (act !== "save") { closePanel(); return; }
+      var outgoing = posAt(slot, f.inning - 1) || slot.titular.pos;
+      sub.dorsal = document.getElementById("subDorsal").value.trim();
+      sub.nombre = document.getElementById("subNombre").value.trim();
+      sub.pos = f.pos;
+      sub.inning = String(f.inning);
+      afterLineup();
+      closePanel();
+      if (!f.pos) return;
+      // ¿La posición ya la ocupa otro jugador? Entonces alguien tiene que moverse
+      for (var j = 0; j < 10; j++) {
+        if (j === row) continue;
+        var other2 = team.lineup[j];
+        if (String(posAt(other2, f.inning)) === String(f.pos)) {
+          (function (j, other2) {
+            pickPos("La posición " + f.pos + " (" + POS[f.pos] + ") la ocupa " + slotName(other2, f.inning) + " (" + (j + 1) + ".º bate). ¿A qué posición pasa desde el inning " + f.inning + "?",
+              outgoing, function (p) {
+                if (p) { addPosChange(other2, f.inning, p); afterLineup(); toast("Cambio de posición anotado."); }
+                closePanel();
+              }, null, "No cambia");
+          })(j, other2);
+          break;
+        }
+      }
+    });
+    var inp = document.getElementById(sub.nombre ? "subDorsal" : "subNombre");
+    if (inp) inp.focus();
+  }
+
   function openField(el) {
     var path = el.getAttribute("data-field");
     var kind = el.getAttribute("data-kind");
@@ -1183,12 +1346,16 @@ table { border-collapse: collapse; table-layout: fixed; }
         html += '<button type="button" class="choice" data-act="pick" data-val="' + esc(o.v) + '" aria-pressed="' +
           (String(current) === String(o.v) ? "true" : "false") + '">' + esc(o.v) + (o.sub ? "<small>" + esc(o.sub) + "</small>" : "") + "</button>";
       });
-      html += '</div><div class="panel-actions">';
+      html += "</div>";
+      var lm = kind === "pos" && /^equipos\.(visitante|local)\.lineup\.(\d+)\./.exec(path);
+      if (lm) html += '<button type="button" class="btn ghost wide" data-act="posmove">Cambio de posición durante el partido…</button>';
+      html += '<div class="panel-actions">';
       if (current) html += '<button type="button" class="btn ghost push-left" data-act="clear">Quitar</button>';
       html += '<button type="button" class="btn ghost" data-act="cancel">Cancelar</button></div>';
       openPanel(html, function (act, val) {
         if (act === "pick") commit(path, val);
         else if (act === "clear") commit(path, "");
+        else if (act === "posmove") posChangePanel(lm[1], +lm[2]);
         else closePanel();
       });
       return;
@@ -1220,7 +1387,7 @@ table { border-collapse: collapse; table-layout: fixed; }
     return !!c.batter.play || (!!c.outPlay && RUNNER_OUTS.indexOf(c.outPlay.code) < 0);
   }
   function reachedBase(c) { return !!c.batter.play || c.desempate; }
-  function outAsRunner(c) { return c.lines.indexOf(2) >= 0 || (reachedBase(c) && !!c.outPlay); }
+  function outAsRunner(c) { return c.lines.indexOf(2) >= 0 || (reachedBase(c) && (!!c.outPlay || !!c.out)); }
   function isAB(c) {
     if (!isPA(c)) return false;
     if (c.batter.play) return ["BB", "iBB", "HbP"].indexOf(c.batter.play.code) < 0;
@@ -1237,6 +1404,90 @@ table { border-collapse: collapse; table-layout: fixed; }
     var sub = slot.sustituto;
     var entra = parseInt(sub.inning, 10);
     return (sub.nombre || sub.pos) && entra && entra <= n ? sub : slot.titular;
+  }
+  // Posición de una fila del line-up en el inning n, con los cambios de posición
+  function posAt(slot, n) {
+    var p = activeAt(slot, n), isSub = p === slot.sustituto, subIn = parseInt(slot.sustituto.inning, 10) || 0;
+    var pos = p.pos;
+    (slot.cambiosPos || []).forEach(function (ch) {
+      var i = parseInt(ch.inning, 10);
+      if (i <= n && (!isSub || i >= subIn)) pos = ch.pos;
+    });
+    return pos;
+  }
+  function posTrail(slot, who) {
+    var subIn = parseInt(slot.sustituto.inning, 10) || 0, hasSub = !!(slot.sustituto.nombre || slot.sustituto.pos) && subIn;
+    var p = who === "sustituto" ? slot.sustituto : slot.titular;
+    var list = p.pos ? [p.pos] : [];
+    (slot.cambiosPos || []).forEach(function (ch) {
+      var i = parseInt(ch.inning, 10);
+      if (who === "sustituto" ? (hasSub && i >= subIn) : (!hasSub || i < subIn)) list.push(ch.pos);
+    });
+    return list.join("·");
+  }
+  // Casillas en el orden en que se jugaron: columna a columna y, dentro de cada una,
+  // desde el bateador que abrió la entrada siguiendo el orden de bateo
+  function gameOrder(team) {
+    var out = [], next = 0, cs = team.casillas;
+    team.columnas.forEach(function (col, ci) {
+      var found = -1;
+      for (var s = 0; s < 10; s++) {
+        var row = (next + s) % 10, c = cs[row + ":" + col.id];
+        if (c && isPA(c)) found = row;
+        else if (found >= 0) break;
+      }
+      for (var s2 = 0; s2 < 10; s2++) {
+        var r2 = (next + s2) % 10, c2 = cs[r2 + ":" + col.id];
+        if (c2) out.push({ row: r2, col: col, ci: ci, c: c2 });
+      }
+      if (found >= 0) next = (found + 1) % 10;
+    });
+    return out;
+  }
+  // Diagonal de fin de entrada: en el último turno completado de cada inning cerrado
+  function closerCells(team) {
+    var closed = closedInnings(team), last = {}, res = {};
+    gameOrder(team).forEach(function (o) { if (isPA(o.c) && closed[o.col.n]) last[o.col.n] = o.row + ":" + o.col.id; });
+    Object.keys(last).forEach(function (n) { res[last[n]] = true; });
+    return res;
+  }
+  // Estadísticas de los lanzadores del equipo t, sacadas de la hoja del rival
+  function pitcherStats(t) {
+    var team = state.equipos[t], opp = state.equipos[other(t)], nRows = team.lanzadores.length;
+    var rows = [], i;
+    for (i = 0; i < nRows; i++) rows.push({ outs: 0, h: 0, r: 0, bb: 0, k: 0, hr: 0, p: 0, used: false });
+    var order = gameOrder(opp);
+    var anyPitch = order.some(function (o) { return hasPitches(o.c); });
+    var idx = 0, curN = null, alloc = 0, inningOuts = {};
+    order.forEach(function (o) { if (o.c.out) inningOuts[o.col.n] = (inningOuts[o.col.n] || 0) + 1; });
+    function endInning() {
+      if (curN === null) return;
+      rows[idx].outs += Math.max(0, Math.min(3, inningOuts[curN] || 0) - alloc);
+    }
+    order.forEach(function (o) {
+      var c = o.c, r;
+      if (o.col.n !== curN) { endInning(); curN = o.col.n; alloc = 0; }
+      r = rows[idx]; r.used = true;
+      var bp = c.batter.play, op = c.outPlay, pc = pitchesOf(c);
+      if (bp && (bp.code === "H" || bp.code === "HR")) r.h++;
+      if (bp && bp.code === "HR") r.hr++;
+      if (bp && (bp.code === "BB" || bp.code === "iBB")) r.bb++;
+      if (!reachedBase(c) && op && (op.code === "K" || op.code === "Kc")) r.k++;
+      if (scored(c)) r.r++;
+      r.p += pc.b + pc.s + pc.f;
+      if (isPA(c) && !(bp && bp.code === "iBB")) r.p++;
+      if (c.cambioLanz) {
+        var o2 = Math.max(alloc, Math.min(3, c.cambioLanz.outs || 0));
+        r.outs += o2 - alloc; alloc = o2;
+        if (idx < nRows - 1) idx++;
+        rows[idx].used = true;
+      }
+    });
+    endInning();
+    return rows.map(function (r) {
+      if (!r.used || !order.length) return null;
+      return { ip: Math.floor(r.outs / 3) + "." + (r.outs % 3), h: r.h, r: r.r, bb: r.bb, k: r.k, hr: r.hr, p: anyPitch ? r.p : "" };
+    });
   }
   function closedInnings(team) {
     var map = colById(team), closed = {};
@@ -1280,7 +1531,7 @@ table { border-collapse: collapse; table-layout: fixed; }
       c.runners.forEach(function (rr) { if (rr.play === "E" && rr.e) positions.push(rr.e); });
       positions.forEach(function (p) {
         for (var j = 0; j < 10; j++) {
-          if (String(activeAt(team.lineup[j], n).pos) === String(p)) { rows[j].E++; rows[j].any = true; break; }
+          if (String(posAt(team.lineup[j], n)) === String(p)) { rows[j].E++; rows[j].any = true; break; }
         }
       });
     });
@@ -1385,7 +1636,7 @@ table { border-collapse: collapse; table-layout: fixed; }
     var col = team.columnas.find(function (c) { return c.id === colId; });
     if (!col) return;
     var cur = team.casillas[row + ":" + colId];
-    ed = { t: t, row: row, col: col, draft: cur ? cloneCell(cur) : emptyCell(), hist: [], fut: [] };
+    ed = { t: t, row: row, col: col, draft: normCell(cur ? cloneCell(cur) : emptyCell()), hist: [], fut: [], wasSust: !!(cur && cur.sust) };
     var slot = team.lineup[row];
     var names = [slot.titular.nombre, slot.sustituto.nombre].filter(Boolean);
     document.getElementById("edTitle").textContent = (row + 1) + ".º bate, inning " + colLabel(col);
@@ -1403,9 +1654,16 @@ table { border-collapse: collapse; table-layout: fixed; }
   function drawEditor() {
     edMain.innerHTML = cellSVG(ed.draft, true);
     sizeEditorCell();
-    document.getElementById("edExtra").innerHTML = ed.col.n > 7
-      ? '<button type="button" class="btn ghost toggle" id="edTie" aria-pressed="' + (ed.draft.desempate ? "true" : "false") + '">Corredor de desempate</button>'
-      : '<p class="ed-hint">Toca una zona de la casilla para anotar.</p>';
+    var pc = ed.draft.pitches, d = ed.draft;
+    var x = '<p class="ed-count">Cuenta <b>' + pc.b + "-" + pc.s + "</b>" + (pc.f ? " · " + pc.f + (pc.f > 1 ? " fouls" : " foul") + " con 2 strikes" : "") +
+      " · " + (pc.b + pc.s + pc.f) + " lanz.</p>" +
+      '<div class="ed-pitch"><button type="button" class="pbtn" data-p="b">Bola</button><button type="button" class="pbtn" data-p="s">Strike</button><button type="button" class="pbtn" data-p="f">Foul</button></div>' +
+      '<div class="ed-toggles">' +
+      '<button type="button" class="btn ghost toggle chip" data-tg="lanz" aria-pressed="' + (d.cambioLanz ? "true" : "false") + '">' + (d.cambioLanz ? "Cambio de lanzador (" + d.cambioLanz.outs + " out" + (d.cambioLanz.outs === 1 ? "" : "s") + ")" : "Cambio de lanzador") + "</button>" +
+      '<button type="button" class="btn ghost toggle chip" data-tg="sust" aria-pressed="' + (d.sust ? "true" : "false") + '">Sustitución</button>' +
+      (ed.col.n > 7 ? '<button type="button" class="btn ghost toggle chip" id="edTie" aria-pressed="' + (d.desempate ? "true" : "false") + '">Desempate</button>' : "") +
+      "</div>";
+    document.getElementById("edExtra").innerHTML = x;
     document.getElementById("edUndo").disabled = !ed.hist.length;
     document.getElementById("edRedo").disabled = !ed.fut.length;
   }
@@ -1430,10 +1688,12 @@ table { border-collapse: collapse; table-layout: fixed; }
     if (!ed || Date.now() - edOpenedAt < 400) return;
     var team = state.equipos[ed.t], key = ed.row + ":" + ed.col.id;
     if (isEmptyCell(ed.draft)) delete team.casillas[key]; else team.casillas[key] = ed.draft;
+    var askSub = ed.draft.sust && !ed.wasSust ? { t: ed.t, row: ed.row, n: ed.col.n } : null;
     persist();
     closeEditor();
     render();
     ensureView();
+    if (askSub) substitutionForm(askSub.t, askSub.row, askSub.n + 1);
   });
   document.getElementById("edCancel").addEventListener("click", function () {
     if (!ed || Date.now() - edOpenedAt < 400) return;
@@ -1445,7 +1705,11 @@ table { border-collapse: collapse; table-layout: fixed; }
     });
   });
   document.getElementById("edExtra").addEventListener("click", function (e) {
-    if (!ed || !e.target.closest("#edTie")) return;
+    if (!ed || Date.now() - edOpenedAt < 400) return;
+    var pb = e.target.closest("[data-p]"), tg = e.target.closest("[data-tg]");
+    if (pb) { pitch(pb.getAttribute("data-p")); return; }
+    if (tg) { if (tg.getAttribute("data-tg") === "lanz") pitcherChangeMenu(); else change(function (d) { d.sust = !d.sust; }); return; }
+    if (!e.target.closest("#edTie")) return;
     change(function (d) {
       d.desempate = !d.desempate;
       d.lines[0] = d.desempate ? 1 : 0;
@@ -1458,6 +1722,66 @@ table { border-collapse: collapse; table-layout: fixed; }
     var z = e.target.closest("[data-zone]");
     if (z) zoneTap(z.getAttribute("data-zone"));
   });
+
+  // ---------- Lanzamientos ----------
+  function pitch(k) {
+    var pc = ed.draft.pitches;
+    if (k === "b" && pc.b >= 3) { toast("Con 3 bolas, la cuarta es la base por bolas: anótala en la zona del bateador."); return; }
+    if (k === "s" && pc.s >= 2) { toast("Con 2 strikes, el tercero es el ponche: anótalo en el centro de la casilla."); return; }
+    change(function (d) {
+      var p = d.pitches;
+      if (k === "b") p.b++;
+      else if (k === "s") p.s++;
+      else if (p.s < 2) p.s++;
+      else p.f++;
+    });
+  }
+  function countMenu() {
+    var pc = ed.draft.pitches;
+    function set(field, v) { change(function (d) { d.pitches[field] = v; }); countMenu(); }
+    function row(label, field, max) {
+      var a = [];
+      for (var v = 0; v <= max; v++) (function (v) { a.push({ label: String(v), sub: label, pressed: pc[field] === v, pick: function () { set(field, v); } }); })(v);
+      return a;
+    }
+    openMenu({
+      title: "Corregir la cuenta",
+      preview: pc.b + "-" + pc.s + (pc.f ? " +" + pc.f + "F" : ""),
+      note: "Fouls con 2 strikes: " + pc.f + ".",
+      cols: 4,
+      items: row("Bolas", "b", 3).concat(row("Strikes", "s", 2)),
+      extras: [
+        { label: "Foul −", disabled: !pc.f, pick: function () { set("f", Math.max(0, pc.f - 1)); } },
+        { label: "Foul +", disabled: pc.s < 2, pick: function () { set("f", pc.f + 1); } },
+        { label: "Borrar cuenta", pick: function () { change(function (d) { d.pitches = { b: 0, s: 0, f: 0 }; }); closeMenu(); } },
+        { label: "Listo", cls: "primary", pick: closeMenu }
+      ],
+      noClose: true
+    });
+  }
+  function outsInInning() {
+    var sameInning = {}, n = 0;
+    state.equipos[ed.t].columnas.forEach(function (c) { if (c.n === ed.col.n) sameInning[c.id] = true; });
+    var cs = state.equipos[ed.t].casillas;
+    Object.keys(cs).forEach(function (k) {
+      var p = k.split(":");
+      if (sameInning[p[1]] && !(+p[0] === ed.row && p[1] === ed.col.id) && cs[k].out) n++;
+    });
+    if (ed.draft.out) n++;
+    return Math.min(3, n);
+  }
+  function pitcherChangeMenu() {
+    var cur = ed.draft.cambioLanz, def = cur ? cur.outs : outsInInning();
+    openMenu({
+      title: "Cambio de lanzador después de este bateador: ¿cuántos outs había en el inning?",
+      note: "Sirve para repartir las entradas lanzadas (IP). Si el cambio es entre innings, elige 3.",
+      cols: 4,
+      items: [0, 1, 2, 3].map(function (n) {
+        return { label: String(n), sub: n === 1 ? "out" : "outs", pressed: def === n, pick: function () { change(function (d) { d.cambioLanz = { outs: n }; }); closeMenu(); } };
+      }),
+      extras: cur ? [{ label: "Quitar cambio", pick: function () { change(function (d) { d.cambioLanz = null; }); closeMenu(); } }] : []
+    });
+  }
 
   function zoneTap(z) {
     if (z.indexOf("line") === 0) {
@@ -1473,7 +1797,8 @@ table { border-collapse: collapse; table-layout: fixed; }
       change(function (d) { d.effort[k] = !d.effort[k]; });
       return;
     }
-    if (z === "home") fieldMenu();
+    if (z === "count") countMenu();
+    else if (z === "home") fieldMenu();
     else if (z === "outs") outsMenu();
     else if (z === "center") centerMenu();
     else if (z === "batter") batterMenu();
@@ -1568,7 +1893,7 @@ table { border-collapse: collapse; table-layout: fixed; }
         { label: "Fly out", sub: "F, FF, L, P, IF", pressed: is(["F", "FF", "L", "P", "IF"]), pick: flyMenu },
         { label: "Fielded out", sub: "Por ejemplo 6-4-3", pressed: is(["FO"]), pick: function () { seqMenu("FO"); } },
         { label: "#u", sub: "Sin asistencia", pressed: is(["U"]), pick: function () {
-          numMenu("Out sin asistencia: ¿qué defensor?", is(["U"]) ? cur.n : null, function (n) { setOut({ code: "U", n: n }); }, centerMenu);
+          modNumMenu("Out sin asistencia: ¿qué defensor?", "U", centerMenu);
         } },
         { label: "SAC", sub: "SH o SF", pressed: is(["SH", "SF"]), pick: sacMenu },
         { label: "CS", sub: "Robo fallido", pressed: is(["CS"]), pick: function () { seqMenu("CS"); } },
@@ -1594,7 +1919,7 @@ table { border-collapse: collapse; table-layout: fixed; }
       title: "Fly out", cols: 3, back: centerMenu,
       items: defs.map(function (d) {
         return { label: d[0] + "#", sub: d[1], pressed: !!cur && cur.code === d[0], pick: function () {
-          numMenu(d[0] + "#: ¿quién hizo el out?", cur && cur.code === d[0] ? cur.n : null, function (n) { setOut({ code: d[0], n: n }); }, flyMenu);
+          modNumMenu(d[0] + "#: ¿quién hizo el out?", d[0], flyMenu);
         } };
       })
     });
@@ -1606,11 +1931,26 @@ table { border-collapse: collapse; table-layout: fixed; }
       title: "Sacrificio", cols: 2, back: centerMenu,
       items: defs.map(function (d) {
         return { label: d[0], sub: d[1], pressed: !!cur && cur.code === d[0], pick: function () {
-          numMenu(d[0] + ": ¿qué defensor intervino?", cur && cur.code === d[0] ? cur.n : null,
-            function (n) { setOut({ code: d[0], n: n }); }, sacMenu,
-            [{ label: "Sin defensor", pick: function () { setOut({ code: d[0], n: null }); } }]);
+          if (d[0] === "SH") seqMenu("SH");
+          else modNumMenu("SF: ¿quién atrapó el fly?", "SF", sacMenu, true);
         } };
       })
+    });
+  }
+  // Elegir defensor con la opción de marcar doble o triple play
+  function modNumMenu(title, code, back, allowNone, mod) {
+    var cur = ed.draft.outPlay;
+    if (mod === undefined) mod = cur && cur.code === code ? (cur.mod || "") : "";
+    var curN = cur && cur.code === code ? cur.n : null;
+    var extras = [
+      { label: "DP", pressed: mod === "DP", pick: function () { modNumMenu(title, code, back, allowNone, mod === "DP" ? "" : "DP"); } },
+      { label: "TP", pressed: mod === "TP", pick: function () { modNumMenu(title, code, back, allowNone, mod === "TP" ? "" : "TP"); } }
+    ];
+    if (allowNone) extras.push({ label: "Sin defensor", pick: function () { setOut({ code: code, n: null, mod: mod }); } });
+    openMenu({
+      title: title, cols: 5, back: back, extras: extras,
+      note: "Si fue doble o triple play, marca DP o TP antes de elegir el defensor.",
+      items: numItems(curN, function (n) { setOut({ code: code, n: n, mod: mod }); })
     });
   }
   function otherMenu() {
@@ -1626,39 +1966,47 @@ table { border-collapse: collapse; table-layout: fixed; }
   function seqMenu(code, seq, mod) {
     var cur = ed.draft.outPlay;
     if (seq === undefined) {
-      seq = cur && cur.code === code ? cur.seq.slice() : [];
+      seq = cur && cur.code === code && cur.seq ? cur.seq.slice() : [];
       mod = cur && cur.code === code ? (cur.mod || "") : "";
     }
     var min = code === "FO" ? 2 : 1;
     var preview = seq.length
-      ? esc((code === "CS" ? "CS " : "") + seq.join("-") + (mod ? " " + mod : ""))
+      ? esc(code === "SH" ? outText({ code: "SH", seq: seq, mod: mod }) : (code === "CS" ? "CS " : "") + seq.join("-") + (mod ? " " + mod : ""))
       : '<span class="muted">Toca los defensores en orden</span>';
     var extras = [{ label: "Borrar último", disabled: !seq.length, pick: function () { seqMenu(code, seq.slice(0, -1), mod); } }];
-    if (code === "FO") {
+    if (code === "FO" || code === "SH") {
       extras.push({ label: "DP", pressed: mod === "DP", pick: function () { seqMenu(code, seq, mod === "DP" ? "" : "DP"); } });
       extras.push({ label: "TP", pressed: mod === "TP", pick: function () { seqMenu(code, seq, mod === "TP" ? "" : "TP"); } });
     }
     extras.push({ label: "Aceptar", cls: "primary", disabled: seq.length < min, pick: function () { setOut({ code: code, seq: seq, mod: mod }); } });
     openMenu({
-      title: code === "FO" ? "Fielded out: defensores en orden" : "Robo fallido (CS): defensores en orden",
+      title: code === "FO" ? "Fielded out: defensores en orden" : code === "SH" ? "Toque de sacrificio: defensores en orden (uno solo = sin asistencia)" : "Robo fallido (CS): defensores en orden",
       preview: preview,
       items: numItems(null, function (n) { if (seq.length < 6) seqMenu(code, seq.concat(n), mod); }),
       cols: 5,
       extras: extras,
-      back: centerMenu
+      back: code === "SH" ? sacMenu : centerMenu
     });
   }
 
   // Zona del bateador
   function playLabel(p) { return p.code === "H" ? ["", "Sencillo", "Doble", "Triple"][p.n] : batterText(p); }
-  function setBatterPlay(p) { change(function (d) { d.batter.play = p; }); closeMenu(); }
+  function setBatterPlay(p) {
+    change(function (d) {
+      var wasHR = !!d.batter.play && d.batter.play.code === "HR";
+      d.batter.play = p;
+      if (p && p.code === "HR") d.lines = [1, 1, 1, 1];
+      else if (wasHR && d.lines.every(function (v) { return v === 1; })) d.lines = [0, 0, 0, 0];
+    });
+    closeMenu();
+  }
   function batterMenu() {
     var b = ed.draft.batter;
     openMenu({
       title: "Bateador: cómo llegó a base", cols: 2,
       items: [
         { label: "Jugada", sub: b.play ? playLabel(b.play) : "Sin anotar", pick: batterPlayMenu },
-        { label: "HBI", sub: b.rbi ? b.rbi + (b.rbi > 1 ? " impulsadas" : " impulsada") : "Sin anotar", pick: rbiMenu }
+        { label: "RBI", sub: b.rbi ? b.rbi + (b.rbi > 1 ? " impulsadas" : " impulsada") : "Sin anotar", pick: rbiMenu }
       ]
     });
   }
@@ -1696,7 +2044,7 @@ table { border-collapse: collapse; table-layout: fixed; }
   function rbiMenu() {
     var cur = ed.draft.batter.rbi;
     openMenu({
-      title: "Carreras impulsadas (HBI)", cols: 4, back: batterMenu,
+      title: "Carreras impulsadas (RBI)", cols: 4, back: batterMenu,
       items: [1, 2, 3, 4].map(function (n) {
         return { label: String(n), sub: new Array(n + 1).join("•"), pressed: cur === n, pick: function () { change(function (d) { d.batter.rbi = n; }); closeMenu(); } };
       }),
@@ -1803,7 +2151,7 @@ table { border-collapse: collapse; table-layout: fixed; }
   });
 
   // ---------- Partidos guardados en el móvil ----------
-  var APP_VERSION = "4.0";
+  var APP_VERSION = "5.0";
   var store = (function () {
     var dbp = null, useLS = false, LSK = "anotacion-softball:partidos";
     function idb() {
