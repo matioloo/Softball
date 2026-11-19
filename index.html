@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<title>Anotación de softball</title>
+<title>Scorer</title>
 <meta name="theme-color" content="#14211A">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Softball">
+<meta name="apple-mobile-web-app-title" content="Scorer">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon-192.png" type="image/png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -584,21 +584,178 @@ table { border-collapse: collapse; table-layout: fixed; }
 .hl-ico { display: flex; flex-direction: column; gap: 4px; width: 36px; }
 .hl-ico i { display: block; height: 3px; background: currentColor; }
 .field-svg { display: block; width: 100%; max-width: 420px; margin: 0 auto; background: #FFFFFF; border-radius: 12px; touch-action: manipulation; }
+
+/* Directorio: sugerencias y pantalla de jugadores y equipos */
+.panel [hidden] { display: none !important; }
+.home-btn.soon { border-style: dashed; background: transparent; }
+.rep-wrap { overflow-x: auto; }
+.rep { width: 100%; border-collapse: collapse; table-layout: auto; font: 400 14px "Barlow", Arial, sans-serif; }
+.rep td:first-child { padding-right: 10px; }
+.rep th, .rep td { width: auto; }
+.rep th, .rep td { padding: 5px 4px; border-bottom: 1px solid var(--chrome-line); text-align: center; }
+.rep th:first-child, .rep td:first-child { text-align: left; white-space: nowrap; }
+.rep th { font-weight: 600; color: var(--chrome-muted); }
+.home-btn.soon strong { color: var(--chrome-muted); }
+.menu-list .btn { height: auto; padding-top: 12px; padding-bottom: 12px; line-height: 1.3; }
+.sug { margin-top: 8px; display: flex; flex-direction: column; gap: 6px; }
+.sug:empty { display: none; }
+.sug-cap { margin: 6px 2px 0; font: 500 13px/1.3 "Barlow", Arial, sans-serif; color: var(--chrome-muted); }
+.sug-item {
+  width: 100%;
+  min-height: 54px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1.5px solid var(--chrome-line);
+  border-radius: 10px;
+  background: var(--field-bg);
+  color: var(--panel-fg);
+  text-align: left;
+}
+.sug-item[aria-selected="true"] { border-color: var(--panel-fg); border-width: 2px; }
+.sug-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.sug-name { font: 600 17px/1.2 "Barlow", Arial, sans-serif; overflow-wrap: anywhere; }
+.sug-sub { font: 400 13px/1.3 "Barlow", Arial, sans-serif; color: var(--chrome-muted); }
+.sug-tag { flex: none; padding: 3px 8px; border-radius: 6px; background: var(--btn-ghost-bg); font: 600 12px/1.2 "Barlow", Arial, sans-serif; }
+.sug-hint {
+  width: 100%;
+  min-height: 46px;
+  padding: 8px 12px;
+  border: 1.5px dashed var(--focus);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--panel-fg);
+  text-align: left;
+  font: 400 16px/1.3 "Barlow", Arial, sans-serif;
+}
+.sug-note { margin: 4px 2px 0; font: 400 14px/1.4 "Barlow", Arial, sans-serif; color: var(--chrome-muted); }
+.rev-list { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+.rev-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--chrome-line); }
+.rev-ok { flex: none; font: 400 13px "Barlow", Arial, sans-serif; color: var(--chrome-muted); }
+.dir-team { margin-bottom: 14px; border: 1px solid var(--chrome-line); border-radius: 12px; background: var(--panel-bg); color: var(--panel-fg); overflow: hidden; }
+.dir-team-name { margin: 0; padding: 12px 14px; display: flex; align-items: baseline; justify-content: space-between; gap: 10px; border-bottom: 1px solid var(--chrome-line); font: 700 22px/1.1 "Barlow Condensed", "Arial Narrow", Arial, sans-serif; }
+.dir-team-name span { font: 400 13px "Barlow", Arial, sans-serif; color: var(--chrome-muted); }
+.dir-players { list-style: none; margin: 0; padding: 0; }
+.dir-row { display: flex; align-items: center; gap: 12px; padding: 9px 14px; border-top: 1px solid var(--chrome-line); }
+.dir-row:first-child { border-top: 0; }
+.dir-num { flex: none; width: 38px; font: 700 19px "Barlow Condensed", "Arial Narrow", Arial, sans-serif; }
+.dir-empty { color: var(--chrome-muted); font: 400 14px "Barlow", Arial, sans-serif; }
+
+/* 6.0: fila para añadir o quitar el 10.º bateador (no se imprime) */
+.grid tr.r-add td { height: 34px; border: 1.5px dashed var(--paper-faint); text-align: left; padding-left: 14px; font: 600 16px "Barlow Condensed", "Arial Narrow", Arial, sans-serif; color: #4D5E54; cursor: pointer; background: #FAFAFA; }
+#printArea .r-add { display: none; }
+.game-sub b.fin { font-weight: 600; color: var(--chrome-fg); }
+
+/* 6.0: pantalla Estadísticas */
+.seg { flex: none; display: flex; gap: 6px; padding: 10px 14px 4px; padding-left: max(14px, env(safe-area-inset-left, 0px)); padding-right: max(14px, env(safe-area-inset-right, 0px)); }
+.seg-b { flex: 1; min-height: 44px; border: 1px solid var(--chrome-line); border-radius: 10px; background: var(--panel-bg); color: var(--panel-fg); font: 600 16px "Barlow", Arial, sans-serif; }
+.seg-b[aria-selected="true"] { background: var(--btn-primary-bg); color: var(--btn-primary-fg); border-color: var(--btn-primary-bg); }
+#report { position: fixed; inset: 0; z-index: 15; display: flex; flex-direction: column; background: var(--chrome-bg); color: var(--chrome-fg);
+  padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+#report[hidden] { display: none; }
+.rep-body { flex: 1; min-height: 0; position: relative; overflow: hidden; touch-action: none; cursor: grab; }
+.sc-scale { position: absolute; left: 0; top: 0; transform-origin: 0 0; width: max-content; will-change: transform; }
+
+/* 6.0: tarjetas de estadísticas (copia de la referencia aprobada; siempre en papel blanco) */
+.sc-card { width: 180mm; border: 2.4pt solid #000; border-radius: 3mm; overflow: hidden; margin: 0; background: #fff; color: #000;
+  font-family: "Barlow", Arial, sans-serif; font-size: 9.5pt; line-height: 1.35; font-variant-numeric: tabular-nums; text-align: left;
+  -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.sc-card * { box-sizing: border-box; }
+.sc-card .sc-cond { font-family: "Barlow Condensed", "Arial Narrow", sans-serif; font-weight: 700; }
+.sc-card .sc-head { display: flex; border-bottom: 2.4pt solid #000; }
+.sc-card .sc-tag { background: #000; color: #fff; display: flex; align-items: center; justify-content: center; padding: 2mm 5mm; font-size: 30pt; line-height: 1; min-width: 27mm; text-align: center; }
+.sc-card .sc-tag small { font-size: 15pt; margin-right: 1mm; }
+.sc-card .sc-who { flex: 1; padding: 2.5mm 4mm; }
+.sc-card .sc-who h1 { margin: 0; font-size: 19pt; line-height: 1.05; }
+.sc-card .sc-who p { margin: .8mm 0 0; color: #555; font-size: 9pt; }
+.sc-card .sc-rec { display: flex; align-items: center; gap: 6mm; padding: 0 5mm; }
+.sc-card .sc-rec div { text-align: center; line-height: 1; }
+.sc-card .sc-rec b { display: block; font-size: 19pt; }
+.sc-card .sc-rec span { font-size: 7.5pt; color: #555; font-family: "Barlow", Arial, sans-serif; font-weight: 400; }
+.sc-card .sc-sec { padding: 3.2mm 4mm 0; }
+.sc-card h2 { margin: 0 0 1.6mm; font-size: 12pt; display: flex; align-items: baseline; gap: 3mm; }
+.sc-card h2 .sc-note { font-family: "Barlow", Arial, sans-serif; font-weight: 500; font-size: 7pt; color: #555; border: .6pt solid #bdbdbd; border-radius: 1mm; padding: 0 1.5mm; }
+.sc-card table { border-collapse: collapse; table-layout: auto; width: 100%; font-size: 8.5pt; border: 1.4pt solid #000; }
+.sc-card th, .sc-card td { border: .5pt solid #bdbdbd; padding: 1mm 1.2mm; text-align: center; white-space: nowrap; height: auto; background: none; color: #000; font: inherit; }
+.sc-card thead th { background: #ececec; border-bottom: 1.2pt solid #000; font-family: "Barlow Condensed", "Arial Narrow", sans-serif; font-weight: 700; font-size: 9pt; }
+.sc-card .l { text-align: left; }
+.sc-card tr.tot td { font-weight: 600; border-top: 1.2pt solid #000; }
+.sc-card td.hi { background: #fbe3ec; font-weight: 600; }
+.sc-card .w { font-weight: 700; }
+.sc-card .lo { color: #666; }
+.sc-card .sc-trio { display: grid; grid-template-columns: repeat(3, 1fr); border: 1.4pt solid #000; }
+.sc-card .sc-trio div { padding: 1.8mm 3mm; border-right: .5pt solid #bdbdbd; }
+.sc-card .sc-trio div:last-child { border-right: 0; }
+.sc-card .sc-trio .k { font-size: 10pt; }
+.sc-card .sc-trio b { display: block; font-size: 24pt; line-height: 1; }
+.sc-card .sc-trio p { margin: .6mm 0 0; font-size: 7.5pt; color: #555; }
+.sc-card .sc-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+.sc-card .sc-mini { display: grid; grid-template-columns: repeat(4, 1fr); border: 1.4pt solid #000; }
+.sc-card .sc-mini div { padding: 1.4mm 2mm; border-right: .5pt solid #bdbdbd; }
+.sc-card .sc-mini div:last-child { border-right: 0; }
+.sc-card .sc-mini b { display: block; font-size: 16pt; line-height: 1.05; }
+.sc-card .sc-mini span { font-size: 7.5pt; color: #555; }
+.sc-card .sc-pos { font-size: 8.5pt; color: #555; margin: 1.5mm 0 0; }
+.sc-card .sc-pos strong { color: #000; }
+.sc-card .sc-spray { border: 1.4pt solid #000; padding: 1.5mm; }
+.sc-card .sc-spray svg { display: block; width: 100%; height: auto; }
+.sc-card .sc-legend { display: flex; flex-wrap: wrap; gap: 1mm 4mm; font-size: 7.5pt; color: #555; margin-top: 1.2mm; }
+.sc-card .sc-legend i { display: inline-block; width: 2.6mm; height: 2.6mm; border-radius: 50%; margin-right: 1.2mm; vertical-align: -.3mm; }
+.sc-card table.sc-inn { table-layout: fixed; }
+.sc-card table.sc-inn th:first-child { width: 22mm; }
+.sc-card td.sc-barcell { height: 13mm; vertical-align: bottom; padding: .5mm 1mm; border-bottom: 0; }
+.sc-card .sc-b { background: #000; margin: 0 auto; width: 60%; border-radius: .5mm .5mm 0 0; }
+.sc-card .sc-b.ag { background: #e0457b; }
+.sc-card td.sc-n { border-top: 0; font-weight: 600; }
+.sc-card .sc-leaders { display: grid; grid-template-columns: repeat(5, 1fr); border: 1.4pt solid #000; }
+.sc-card .sc-leaders div { padding: 1.6mm 2.5mm; border-right: .5pt solid #bdbdbd; min-width: 0; }
+.sc-card .sc-leaders div:last-child { border-right: 0; }
+.sc-card .sc-leaders .k { font-size: 9.5pt; }
+.sc-card .sc-leaders b { display: block; font-size: 18pt; line-height: 1; }
+.sc-card .sc-leaders span { font-size: 7.5pt; color: #555; }
+.sc-card .sc-brand { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1.5mm 4mm; border-left: .5pt solid #bdbdbd; }
+.sc-card .sc-brand svg { width: 13mm; height: 13mm; display: block; }
+.sc-card .sc-brand span { font-family: "Barlow Condensed", "Arial Narrow", sans-serif; font-weight: 700; font-size: 10pt; color: #000; margin-top: .8mm; line-height: 1; }
+.sc-card .sc-foot { display: flex; justify-content: space-between; gap: 4mm; padding: 3mm 4mm 3mm; font-size: 7pt; color: #666; }
+
+/* 6.0 v2: logo en la hoja y en la casilla, directorio editable, errores de formulario */
+.hf-logo { margin-left: auto; display: flex; flex-direction: column; align-items: center; gap: 2px; font: 700 15px/1 "Barlow Condensed", "Arial Narrow", Arial, sans-serif; color: var(--ink); }
+.hf-logo svg { width: 46px; height: 46px; display: block; }
+.ed-logo { margin-left: auto; flex: none; display: flex; flex-direction: column; align-items: center; gap: 1px; font: 700 11px/1 "Barlow Condensed", "Arial Narrow", Arial, sans-serif; color: var(--chrome-fg); }
+.ed-logo svg { width: 30px; height: 30px; display: block; }
+.form-error { margin: 8px 2px 0; padding: 8px 10px; border-radius: 8px; background: #FDECEE; color: #9B0D23; font: 500 14px/1.4 "Barlow", Arial, sans-serif; }
+.dir-btn { width: 100%; border: 0; background: none; color: inherit; text-align: left; font: inherit; cursor: pointer; }
+button.dir-team-name { font: 700 19px "Barlow Condensed", "Arial Narrow", Arial, sans-serif; }
+.field-note { margin: 6px 2px 0; font: 400 13px/1.35 "Barlow", Arial, sans-serif; color: var(--chrome-muted); }
 </style>
 </head>
 <body>
 <section id="homeView" class="view">
   <div class="home">
     <div class="home-inner">
-      <svg class="home-logo" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#14211A"/><path d="M32 9 L55 32 L32 55 L9 32 Z" fill="none" stroke="#FFF" stroke-width="3"/><circle cx="32" cy="32" r="11" fill="#E6EE3A"/><path d="M25 24 Q29 32 25 40 M39 24 Q35 32 39 40" fill="none" stroke="#C8102E" stroke-width="1.6"/></svg>
-      <h1>Anotación de softball</h1>
-      <p class="home-lead">Hoja de anotación para el móvil</p>
+      <svg class="home-logo" viewBox="0 0 200 200" aria-hidden="true"><circle cx="100" cy="100" r="100" fill="#8B3B18"/><g fill="none" stroke="#FFF" stroke-width="4" stroke-linecap="round"><path d="M22 60 L70 93"/><path d="M178 60 L130 93"/><path d="M53 93 H83 L78 132 H32 Z"/><path d="M117 93 H147 L168 132 H122 Z"/></g><path d="M93 107 H107 V111 L100 116 L93 111 Z" fill="#FFF"/></svg>
+      <h1>Scorer</h1>
+      <p class="home-lead">Hoja de anotación de softball para el móvil</p>
       <button type="button" class="home-btn primary" id="homeNew"><strong>Nuevo partido</strong><span>Empieza una hoja en blanco</span></button>
       <button type="button" class="home-btn" id="homeOpen"><strong>Abrir partido</strong><span id="homeOpenSub">Partidos guardados en este móvil</span></button>
-      <button type="button" class="home-btn" id="homeLoad"><strong>Cargar partido</strong><span>Importa un archivo traído de otro dispositivo</span></button>
-      <button type="button" class="home-btn" id="homeExport"><strong>Exportar partido</strong><span>Como archivo para otro móvil o como PDF</span></button>
+      <button type="button" class="home-btn" id="homeTransfer"><strong>Exportar/Importar partido</strong><span>Pasa partidos a otro móvil o guarda la hoja en PDF</span></button>
+      <button type="button" class="home-btn" id="homeDir"><strong>Jugadores y equipos</strong><span>El directorio que se va llenando al anotar</span></button>
+      <button type="button" class="home-btn soon" id="homeDirTransfer" aria-disabled="true"><strong>Exportar/Importar jugadores y equipos</strong><span>Próximamente</span></button>
+      <button type="button" class="home-btn" id="homeStats"><strong>Estadísticas</strong><span>Informes de jugadores y equipos</span></button>
       <p class="home-foot" id="appVersion"></p>
     </div>
+  </div>
+</section>
+<section id="dirView" class="view" hidden>
+  <header class="bar">
+    <button type="button" class="tool" id="dirBack">Atrás</button>
+    <div class="list-head"><p class="list-title">Jugadores y equipos</p><p class="list-hint">Se guardan solos al anotar. Aquí puedes revisarlos o darlos de alta antes.</p></div>
+  </header>
+  <div class="list" id="dirBody"></div>
+  <div class="list-actions">
+    <button type="button" class="btn ghost" id="dirNewTeam">Nuevo equipo</button>
+    <button type="button" class="btn primary" id="dirNewPlayer">Nuevo jugador</button>
   </div>
 </section>
 <section id="listView" class="view" hidden>
@@ -612,6 +769,25 @@ table { border-collapse: collapse; table-layout: fixed; }
     <button type="button" class="btn primary" id="expJson">Archivo (.json)</button>
   </div>
 </section>
+<section id="statsView" class="view" hidden>
+  <header class="bar">
+    <button type="button" class="tool" id="statsBack">Atrás</button>
+    <div class="list-head"><p class="list-title">Estadísticas</p><p class="list-hint" id="statsHint"></p></div>
+  </header>
+  <div class="seg" role="tablist" aria-label="Tipo de informe">
+    <button type="button" class="seg-b" role="tab" data-st="jug" aria-selected="true">Jugadores</button>
+    <button type="button" class="seg-b" role="tab" data-st="eq" aria-selected="false">Equipos</button>
+  </div>
+  <div class="list" id="statsBody"></div>
+</section>
+<div id="report" hidden role="dialog" aria-modal="true" aria-labelledby="repTitle">
+  <header class="bar">
+    <button type="button" class="tool" id="repBack">Volver</button>
+    <div class="list-head"><p class="list-title" id="repTitle"></p><p class="list-hint">Pellizca para ampliar</p></div>
+    <button type="button" class="tool" id="repFit">Ajustar</button>
+  </header>
+  <div class="rep-body" id="repBody"></div>
+</div>
 <div id="sheetView" class="view" hidden>
 <header class="bar">
   <div class="tabs" role="tablist" aria-label="Equipo">
@@ -628,6 +804,7 @@ table { border-collapse: collapse; table-layout: fixed; }
   <div class="ed-top">
     <button type="button" class="btn ghost" id="edCancel">Cancelar</button>
     <div class="ed-head"><p class="ed-title" id="edTitle"></p><p class="ed-sub" id="edSub"></p></div>
+    <div class="ed-logo"><svg viewBox="0 0 200 200" aria-hidden="true"><circle cx="100" cy="100" r="100" fill="#8B3B18"/><g fill="none" stroke="#FFF" stroke-width="4" stroke-linecap="round"><path d="M22 60 L70 93"/><path d="M178 60 L130 93"/><path d="M53 93 H83 L78 132 H32 Z"/><path d="M117 93 H147 L168 132 H122 Z"/></g><path d="M93 107 H107 V111 L100 116 L93 111 Z" fill="#FFF"/></svg><span>Scorer</span></div>
   </div>
   <div class="ed-main" id="edMain"></div>
   <div class="ed-extra" id="edExtra"></div>
@@ -654,8 +831,11 @@ table { border-collapse: collapse; table-layout: fixed; }
   var STATS = ["AB", "R", "H", "RBI", "BB", "SB", "SF", "SH", "E", "LOB"];
   var POS = {
     1: "Lanzador", 2: "Receptor", 3: "Primera", 4: "Segunda", 5: "Tercera",
-    6: "Short", 7: "Jardín izq.", 8: "Jardín cen.", 9: "Jardín der.", 10: "Shortfielder"
+    6: "Short", 7: "Jardín izq.", 8: "Jardín cen.", 9: "Jardín der.", 10: "Shortfielder", 11: "Bateador designado"
   };
+  // Abreviaturas de las tarjetas de estadísticas
+  var POS_ABBR = { 1: "P", 2: "C", 3: "1B", 4: "2B", 5: "3B", 6: "SS", 7: "LF", 8: "CF", 9: "RF", 10: "SF", 11: "DH" };
+  function posLbl(k) { return String(k) === "11" ? "DH" : String(k); }
   var PITCH_COLS = [
     { k: "dorsal", h: "#", w: 40, kind: "dorsal", label: "dorsal" },
     { k: "nombre", h: "LANZADOR", w: 170, kind: "text", label: "nombre" },
@@ -672,7 +852,7 @@ table { border-collapse: collapse; table-layout: fixed; }
   // Columnas de la tabla de lanzadores que se calculan solas (ER, nombre y dorsal se escriben)
   var AUTO_PITCH = ["ip", "h", "r", "bb", "k", "hr", "p"];
 
-  function blankPlayer() { return { dorsal: "", nombre: "", pos: "" }; }
+  function blankPlayer() { return { dorsal: "", nombre: "", pos: "", jid: null }; }
   function blankTeam() {
     var lineup = [], lanz = [], cols = [], i;
     for (i = 0; i < 10; i++) {
@@ -680,13 +860,13 @@ table { border-collapse: collapse; table-layout: fixed; }
       lineup.push({ titular: blankPlayer(), sustituto: sub });
     }
     for (i = 0; i < 5; i++) {
-      lanz.push({ dorsal: "", nombre: "", ip: "", h: "", r: "", er: "", bb: "", k: "", hr: "", p: "" });
+      lanz.push({ jid: null, dorsal: "", nombre: "", ip: "", h: "", r: "", er: "", bb: "", k: "", hr: "", p: "" });
     }
     for (i = 1; i <= 7; i++) cols.push({ id: "c" + i, n: i, cont: false });
-    return { nombre: "", columnas: cols, lineup: lineup, lanzadores: lanz, casillas: {} };
+    return { nombre: "", eid: null, filas: 9, columnas: cols, lineup: lineup, lanzadores: lanz, casillas: {} };
   }
   function blankGame() {
-    return { version: 1, partido: { fecha: "", hora: "", estadio: "" }, equipos: { visitante: blankTeam(), local: blankTeam() } };
+    return { version: 1, formato: 2, temporada: "T1", terminado: false, partido: { fecha: "", hora: "", estadio: "" }, equipos: { visitante: blankTeam(), local: blankTeam() } };
   }
   function isValid(g) {
     try {
@@ -708,11 +888,25 @@ table { border-collapse: collapse; table-layout: fixed; }
       var e = g.equipos[t];
       if (!e.casillas || typeof e.casillas !== "object") e.casillas = {};
       e.columnas.forEach(function (c) { if (!c.id) c.id = c.cont ? "c" + c.n + "x" + newId() : "c" + c.n; });
+      if (e.filas !== 9 && e.filas !== 10) {
+        var r9 = e.lineup[9] || {}, t9 = r9.titular || {}, s9 = r9.sustituto || {};
+        var used = !!(t9.nombre || t9.dorsal || t9.jid || s9.nombre) || Object.keys(e.casillas).some(function (k) { return k.split(":")[0] === "9"; });
+        e.filas = used ? 10 : 9;
+      }
     });
+    if (g.terminado === undefined) g.terminado = false;
+    g.formato = 2;
     return g;
   }
   var state = blankGame();
   var active = "visitante";
+  // Número de bateadores del equipo (9 o 10)
+  function nfil(team) { return team && team.filas === 10 ? 10 : 9; }
+  function row10Empty(team) {
+    var s = team.lineup[9];
+    return !(s.titular.nombre || s.titular.dorsal || s.titular.jid || s.sustituto.nombre || s.sustituto.jid) &&
+      !Object.keys(team.casillas).some(function (k) { return k.split(":")[0] === "9"; });
+  }
 
   function getPath(path) {
     return path.split(".").reduce(function (o, k) { return o == null ? undefined : o[k]; }, state);
@@ -757,7 +951,8 @@ table { border-collapse: collapse; table-layout: fixed; }
       desempate: false,
       pitches: { b: 0, s: 0, f: 0 },
       cambioLanz: null,
-      sust: false
+      sust: false,
+      corredor: false
     };
   }
   // Casillas guardadas con versiones anteriores: se completan los campos nuevos
@@ -765,6 +960,7 @@ table { border-collapse: collapse; table-layout: fixed; }
     if (!c.pitches) c.pitches = { b: 0, s: 0, f: 0 };
     if (c.cambioLanz === undefined) c.cambioLanz = null;
     if (c.sust === undefined) c.sust = false;
+    if (c.corredor === undefined) c.corredor = false;
     return c;
   }
   function pitchesOf(c) { return c && c.pitches ? c.pitches : { b: 0, s: 0, f: 0 }; }
@@ -775,7 +971,7 @@ table { border-collapse: collapse; table-layout: fixed; }
     return JSON.stringify(c.lines) === JSON.stringify(e.lines) &&
       JSON.stringify(c.effort) === JSON.stringify(e.effort) &&
       !c.dir && !c.out && !c.outPlay && !c.batter.play && !c.batter.rbi && !c.desempate &&
-      !hasPitches(c) && !c.cambioLanz && !c.sust &&
+      !hasPitches(c) && !c.cambioLanz && !c.sust && !c.corredor &&
       c.runners.every(function (r) { return !r.play && !r.turno; });
   }
   function f1(n) { return Math.round(n * 10) / 10; }
@@ -797,8 +993,12 @@ table { border-collapse: collapse; table-layout: fixed; }
     }
   }
   function outHTML(op) { return op && op.code === "Kc" ? '<span class="kc">K</span>' : esc(outText(op)); }
-  function batterText(p) { if (!p) return ""; if (p.code === "E") return "E" + p.n; return p.code; }
-  function runnerPlayText(r) { return r.play === "SB" ? "SB" : r.play === "E" ? "E" + r.e : ""; }
+  function batterText(p) {
+    if (!p) return "";
+    var t = p.code === "E" ? "E" + (p.n || "") : p.code;
+    return p.k3 ? "K " + t : t;
+  }
+  function runnerPlayText(r) { return r.play === "E" ? "E" + r.e : (r.play || ""); }
 
   function arrowSVG(x1, y1, x2, y2, color, w, head) {
     var dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy) || 1, ux = dx / L, uy = dy / L;
@@ -880,7 +1080,8 @@ table { border-collapse: collapse; table-layout: fixed; }
         s.push('<line x1="84" y1="' + f1(y) + '" x2="112" y2="' + f1(y) + '" stroke="#000" stroke-width="2.6"/>');
       }
     } else if (bp) {
-      s.push('<text x="98" y="93" text-anchor="middle" font-size="16" font-weight="700">' + esc(batterText(bp)) + "</text>");
+      var btx = batterText(bp);
+      s.push('<text x="98" y="93" text-anchor="middle" font-size="' + (btx.length > 4 ? 11.5 : btx.length > 3 ? 13 : 16) + '" font-weight="700">' + esc(btx) + "</text>");
     }
     for (k = 0; k < c.batter.rbi; k++) s.push('<circle cx="' + (87 + k * 7.5) + '" cy="103" r="2.6" fill="#000"/>');
 
@@ -902,7 +1103,8 @@ table { border-collapse: collapse; table-layout: fixed; }
     // Fin de entrada: diagonal en el último bateador del inning
     if (opts.closer) s.push('<line x1="105" y1="110" x2="120" y2="95" stroke="#000" stroke-width="3"/>');
     // Sustitución (borde derecho) y cambio de lanzador (borde inferior)
-    if (c.sust) s.push('<line x1="118.5" y1="0" x2="118.5" y2="110" stroke="#000" stroke-width="3"/>');
+    if (c.sust || c.corredor) s.push('<line x1="118.5" y1="0" x2="118.5" y2="110" stroke="#000" stroke-width="3"/>');
+    if (c.corredor) s.push('<text x="111" y="49" text-anchor="middle" font-size="12" font-weight="700">R</text>');
     if (c.cambioLanz) s.push('<line x1="0" y1="108.5" x2="120" y2="108.5" stroke="#000" stroke-width="3"/>');
     if (c.out) {
       s.push('<circle cx="108" cy="12" r="10" fill="none" stroke="#C8102E" stroke-width="2"/>' +
@@ -941,6 +1143,7 @@ table { border-collapse: collapse; table-layout: fixed; }
     h.push('<div class="hf">FECHA:<span class="line fld" style="width:190px"' + fa("partido.fecha", "text", "Fecha") + ">" + esc(p.fecha) + "</span></div>");
     h.push('<div class="hf">HORA:<span class="line fld" style="width:110px"' + fa("partido.hora", "text", "Hora") + ">" + esc(p.hora) + "</span></div>");
     h.push('<div class="hf">ESTADIO:<span class="line fld" style="width:330px"' + fa("partido.estadio", "text", "Estadio") + ">" + esc(p.estadio) + "</span></div>");
+    h.push('<div class="hf-logo">' + CARD_LOGO + "<span>Scorer</span></div>");
     h.push("</div>");
 
     h.push('<section class="team">');
@@ -956,7 +1159,9 @@ table { border-collapse: collapse; table-layout: fixed; }
     STATS.forEach(function (s) { h.push("<th>" + s + "</th>"); });
     h.push("</tr></thead><tbody>");
 
+    var NF = nfil(team);
     team.lineup.forEach(function (slot, i) {
+      if (i >= NF) return;
       var tp = base + ".lineup." + i + ".titular";
       var sp = base + ".lineup." + i + ".sustituto";
       var ord = (i + 1) + ".º bate";
@@ -977,11 +1182,14 @@ table { border-collapse: collapse; table-layout: fixed; }
       h.push('<span class="subname fld"' + fa(sp + ".nombre", "text", "Sustituto del " + ord) + ">" +
         (sub.nombre ? esc(sub.nombre) : '<span class="ph">Sustituto</span>') + "</span>");
       h.push('<span class="inn fld"' + fa(sp + ".inning", "inning", "Inning en que entra el sustituto del " + ord) + ">" +
-        (sub.inning ? "Inn " + esc(sub.inning) : '<span class="ph">Inn</span>') + "</span>");
+        (sub.inning ? (sub.tipo === "corredor" ? "R · " : "") + "Inn " + esc(sub.inning) : '<span class="ph">Inn</span>') + "</span>");
       h.push("</div></td>");
       h.push('<td class="pos split fld"' + fa(sp + ".pos", "pos", "Posición del sustituto del " + ord) + ">" + esc(posTrail(slot, "sustituto")) + "</td>");
       h.push("</tr>");
     });
+    var span = 4 + cols.length + STATS.length;
+    if (NF === 9) h.push('<tr class="r-add"><td colspan="' + span + '" data-rows="add">+ Añadir 10.º bateador</td></tr>');
+    else if (row10Empty(team)) h.push('<tr class="r-add"><td colspan="' + span + '" data-rows="del">− Quitar 10.º bateador</td></tr>');
     h.push("</tbody></table>");
 
     // Marcador por entradas y lanzadores
@@ -1163,6 +1371,8 @@ table { border-collapse: collapse; table-layout: fixed; }
     if (!el) return;
     var f = el.closest("[data-field]");
     if (f) { openField(f); return; }
+    var rw = el.closest("[data-rows]");
+    if (rw) { toggleRow10(rw.getAttribute("data-rows")); return; }
     var colh = el.closest("[data-col]");
     if (colh) { openColumnMenu(colh.getAttribute("data-col")); return; }
     var ab = el.closest("[data-ab]");
@@ -1211,6 +1421,7 @@ table { border-collapse: collapse; table-layout: fixed; }
 
   function commit(path, value) {
     setPath(path, value);
+    learnHabit(path, value);
     persist();
     closePanel();
     render();
@@ -1264,7 +1475,7 @@ table { border-collapse: collapse; table-layout: fixed; }
   function pickPos(title, cur, pick, back, extraLabel) {
     var h = '<p class="panel-title">' + esc(title) + '</p><div class="choices">';
     Object.keys(POS).forEach(function (k) {
-      h += '<button type="button" class="choice" data-act="pick" data-val="' + k + '" aria-pressed="' + (String(cur) === k ? "true" : "false") + '">' + k + "<small>" + esc(POS[k]) + "</small></button>";
+      h += '<button type="button" class="choice" data-act="pick" data-val="' + k + '" aria-pressed="' + (String(cur) === k ? "true" : "false") + '">' + posLbl(k) + "<small>" + esc(POS[k]) + "</small></button>";
     });
     h += '</div><div class="panel-actions">' + (extraLabel ? '<button type="button" class="btn ghost push-left" data-act="none">' + esc(extraLabel) + "</button>" : "") +
       '<button type="button" class="btn ghost" data-act="back">' + (back ? "Atrás" : "Cancelar") + "</button></div>";
@@ -1275,17 +1486,22 @@ table { border-collapse: collapse; table-layout: fixed; }
     });
   }
   // Ficha del jugador que entra: dorsal, nombre, posición e inning
-  function substitutionForm(t, row, defInning) {
+  function substitutionForm(t, row, defInning, at) {
     var team = state.equipos[t], slot = team.lineup[row], sub = slot.sustituto;
     var ns = inningNumbers(t);
-    var f = { pos: sub.pos || "", inning: sub.inning ? +sub.inning : (ns.indexOf(defInning) >= 0 ? defInning : ns[ns.length - 1]) };
-    var h = '<p class="panel-title">Entra por el ' + (row + 1) + ".º bate (" + esc(slot.titular.nombre || "titular") + ")</p>" +
+    var f = { row: row, jid: sub.jid || null, pos: sub.pos || "", inning: sub.inning ? +sub.inning : (ns.indexOf(defInning) >= 0 ? defInning : ns[ns.length - 1]) };
+    var tipo = at && at.tipo ? at.tipo : (sub.tipo || "normal");
+    f.tipo = tipo;
+    // El corredor emergente ocupa el puesto del bateador al que sustituye
+    if (tipo === "corredor" && !sub.nombre) f.pos = String(posAt(slot, defInning) || slot.titular.pos || "");
+    var h = '<p class="panel-title">' + (tipo === "corredor" ? "Corredor emergente por el " : "Entra por el ") + (row + 1) + ".º bate (" + esc(slot.titular.nombre || "titular") + ")</p>" +
+      (tipo === "corredor" ? '<p class="panel-text">Corre desde esta casilla y batea en los siguientes turnos de la fila.</p>' : "") +
       (sub.nombre ? '<p class="panel-text">Esta fila ya tiene sustituto: al guardar se cambian sus datos.</p>' : "") +
       '<div class="form-row"><input id="subDorsal" type="text" inputmode="text" maxlength="4" placeholder="#" autocomplete="off" autocapitalize="characters" value="' + esc(sub.dorsal) + '">' +
-      '<input id="subNombre" type="text" maxlength="60" placeholder="Nombre" autocomplete="off" autocapitalize="words" value="' + esc(sub.nombre) + '"></div>' +
+      '<input id="subNombre" type="text" maxlength="60" placeholder="Nombre" autocomplete="off" autocapitalize="words" value="' + esc(sub.nombre) + '"></div><p class="form-error" id="subErr" hidden></p>' +
       '<p class="form-label">Posición</p><div class="choices">';
     Object.keys(POS).forEach(function (k) {
-      h += '<button type="button" class="choice" data-act="pos" data-val="' + k + '" aria-pressed="' + (String(f.pos) === k ? "true" : "false") + '">' + k + "<small>" + esc(POS[k]) + "</small></button>";
+      h += '<button type="button" class="choice" data-act="pos" data-val="' + k + '" aria-pressed="' + (String(f.pos) === k ? "true" : "false") + '">' + posLbl(k) + "<small>" + esc(POS[k]) + "</small></button>";
     });
     h += '</div><p class="form-label">Entra en el inning</p><div class="choices cols-5">';
     ns.forEach(function (n) {
@@ -1300,9 +1516,14 @@ table { border-collapse: collapse; table-layout: fixed; }
       }
       if (act !== "save") { closePanel(); return; }
       var outgoing = posAt(slot, f.inning - 1) || slot.titular.pos;
-      sub.dorsal = document.getElementById("subDorsal").value.trim();
-      sub.nombre = document.getElementById("subNombre").value.trim();
+      var subD = document.getElementById("subDorsal").value.trim(), oldPos = sub.pos;
       sub.pos = f.pos;
+      var lk = resolvePlayer(t, sub, subD, document.getElementById("subNombre").value, false);
+      if (!lk.ok) { sub.pos = oldPos; formError("subErr", lk.msg); return; }
+      sub.pos = f.pos;
+      sub.tipo = tipo;
+      if (at && at.colId) sub.desde = at.colId;
+      if (lk.created) toast("Jugador nuevo guardado: " + lk.j.nombre);
       sub.inning = String(f.inning);
       afterLineup();
       closePanel();
@@ -1336,7 +1557,7 @@ table { border-collapse: collapse; table-layout: fixed; }
     if (kind === "pos" || kind === "inning") {
       var options;
       if (kind === "pos") {
-        options = Object.keys(POS).map(function (k) { return { v: k, sub: POS[k] }; });
+        options = Object.keys(POS).map(function (k) { return { v: k, lbl: posLbl(k), sub: POS[k] }; });
       } else {
         var team = state.equipos[path.split(".")[1]];
         options = team.columnas.map(function (c) { return { v: colLabel(c), sub: "" }; });
@@ -1344,7 +1565,7 @@ table { border-collapse: collapse; table-layout: fixed; }
       var html = '<p class="panel-title">' + esc(label) + '</p><div class="choices' + (kind === "inning" ? " cols-4" : "") + '">';
       options.forEach(function (o) {
         html += '<button type="button" class="choice" data-act="pick" data-val="' + esc(o.v) + '" aria-pressed="' +
-          (String(current) === String(o.v) ? "true" : "false") + '">' + esc(o.v) + (o.sub ? "<small>" + esc(o.sub) + "</small>" : "") + "</button>";
+          (String(current) === String(o.v) ? "true" : "false") + '">' + esc(o.lbl || o.v) + (o.sub ? "<small>" + esc(o.sub) + "</small>" : "") + "</button>";
       });
       html += "</div>";
       var lm = kind === "pos" && /^equipos\.(visitante|local)\.lineup\.(\d+)\./.exec(path);
@@ -1361,6 +1582,7 @@ table { border-collapse: collapse; table-layout: fixed; }
       return;
     }
 
+    if (kind === "text" || kind === "dorsal") { var nc = nameCtx(path); if (nc) { nameField(label, nc); return; } }
     var inputmode = kind === "num" ? "numeric" : kind === "decimal" ? "decimal" : "text";
     var maxlen = kind === "dorsal" ? 4 : kind === "num" || kind === "decimal" ? 5 : 60;
     var placeholder = path === "partido.fecha" ? "p. ej. 14/11/2026" : path === "partido.hora" ? "p. ej. 18:30" : "";
@@ -1415,7 +1637,8 @@ table { border-collapse: collapse; table-layout: fixed; }
     });
     return pos;
   }
-  function posTrail(slot, who) {
+  function posTrail(slot, who) { return posList(slot, who).map(posLbl).join("·"); }
+  function posList(slot, who) {
     var subIn = parseInt(slot.sustituto.inning, 10) || 0, hasSub = !!(slot.sustituto.nombre || slot.sustituto.pos) && subIn;
     var p = who === "sustituto" ? slot.sustituto : slot.titular;
     var list = p.pos ? [p.pos] : [];
@@ -1423,24 +1646,24 @@ table { border-collapse: collapse; table-layout: fixed; }
       var i = parseInt(ch.inning, 10);
       if (who === "sustituto" ? (hasSub && i >= subIn) : (!hasSub || i < subIn)) list.push(ch.pos);
     });
-    return list.join("·");
+    return list;
   }
   // Casillas en el orden en que se jugaron: columna a columna y, dentro de cada una,
   // desde el bateador que abrió la entrada siguiendo el orden de bateo
   function gameOrder(team) {
-    var out = [], next = 0, cs = team.casillas;
+    var out = [], next = 0, cs = team.casillas, N = nfil(team);
     team.columnas.forEach(function (col, ci) {
       var found = -1;
-      for (var s = 0; s < 10; s++) {
-        var row = (next + s) % 10, c = cs[row + ":" + col.id];
+      for (var s = 0; s < N; s++) {
+        var row = (next + s) % N, c = cs[row + ":" + col.id];
         if (c && isPA(c)) found = row;
         else if (found >= 0) break;
       }
-      for (var s2 = 0; s2 < 10; s2++) {
-        var r2 = (next + s2) % 10, c2 = cs[r2 + ":" + col.id];
+      for (var s2 = 0; s2 < N; s2++) {
+        var r2 = (next + s2) % N, c2 = cs[r2 + ":" + col.id];
         if (c2) out.push({ row: r2, col: col, ci: ci, c: c2 });
       }
-      if (found >= 0) next = (found + 1) % 10;
+      if (found >= 0) next = (found + 1) % N;
     });
     return out;
   }
@@ -1452,8 +1675,9 @@ table { border-collapse: collapse; table-layout: fixed; }
     return res;
   }
   // Estadísticas de los lanzadores del equipo t, sacadas de la hoja del rival
-  function pitcherStats(t) {
-    var team = state.equipos[t], opp = state.equipos[other(t)], nRows = team.lanzadores.length;
+  function pitcherStats(t) { return pitcherStatsD(state, t); }
+  function pitcherStatsD(g, t) {
+    var team = g.equipos[t], opp = g.equipos[other(t)], nRows = team.lanzadores.length;
     var rows = [], i;
     for (i = 0; i < nRows; i++) rows.push({ outs: 0, h: 0, r: 0, bb: 0, k: 0, hr: 0, p: 0, used: false });
     var order = gameOrder(opp);
@@ -1472,7 +1696,7 @@ table { border-collapse: collapse; table-layout: fixed; }
       if (bp && (bp.code === "H" || bp.code === "HR")) r.h++;
       if (bp && bp.code === "HR") r.hr++;
       if (bp && (bp.code === "BB" || bp.code === "iBB")) r.bb++;
-      if (!reachedBase(c) && op && (op.code === "K" || op.code === "Kc")) r.k++;
+      if ((!reachedBase(c) && op && (op.code === "K" || op.code === "Kc")) || (bp && bp.k3)) r.k++;
       if (scored(c)) r.r++;
       r.p += pc.b + pc.s + pc.f;
       if (isPA(c) && !(bp && bp.code === "iBB")) r.p++;
@@ -1486,7 +1710,7 @@ table { border-collapse: collapse; table-layout: fixed; }
     endInning();
     return rows.map(function (r) {
       if (!r.used || !order.length) return null;
-      return { ip: Math.floor(r.outs / 3) + "." + (r.outs % 3), h: r.h, r: r.r, bb: r.bb, k: r.k, hr: r.hr, p: anyPitch ? r.p : "" };
+      return { outs: r.outs, ip: Math.floor(r.outs / 3) + "." + (r.outs % 3), h: r.h, r: r.r, bb: r.bb, k: r.k, hr: r.hr, p: anyPitch ? r.p : "" };
     });
   }
   function closedInnings(team) {
@@ -1542,15 +1766,15 @@ table { border-collapse: collapse; table-layout: fixed; }
   // Siguiente bateador: se recorren las columnas en orden y, dentro de cada una,
   // los turnos a partir de donde terminó la anterior (el orden da la vuelta del 10 al 1)
   function nextBatter(team, map) {
-    var next = 0, lastCol = -1, cs = team.casillas, cols = team.columnas;
+    var next = 0, lastCol = -1, cs = team.casillas, cols = team.columnas, N = nfil(team);
     cols.forEach(function (col, ci) {
       var found = -1;
-      for (var s = 0; s < 10; s++) {
-        var row = (next + s) % 10, c = cs[row + ":" + col.id];
+      for (var s = 0; s < N; s++) {
+        var row = (next + s) % N, c = cs[row + ":" + col.id];
         if (c && isPA(c)) found = row;
         else if (found >= 0) break;
       }
-      if (found >= 0) { next = (found + 1) % 10; lastCol = ci; }
+      if (found >= 0) { next = (found + 1) % N; lastCol = ci; }
     });
     if (lastCol < 0) return { row: 0, colId: cols[0] ? cols[0].id : null };
     var closed = closedInnings(team), cur = cols[lastCol];
@@ -1636,11 +1860,12 @@ table { border-collapse: collapse; table-layout: fixed; }
     var col = team.columnas.find(function (c) { return c.id === colId; });
     if (!col) return;
     var cur = team.casillas[row + ":" + colId];
-    ed = { t: t, row: row, col: col, draft: normCell(cur ? cloneCell(cur) : emptyCell()), hist: [], fut: [], wasSust: !!(cur && cur.sust) };
+    ed = { t: t, row: row, col: col, draft: normCell(cur ? cloneCell(cur) : emptyCell()), hist: [], fut: [], wasSust: !!(cur && cur.sust), wasCorr: !!(cur && cur.corredor) };
     var slot = team.lineup[row];
-    var names = [slot.titular.nombre, slot.sustituto.nombre].filter(Boolean);
+    var w = whoAt(t, row, colId);
     document.getElementById("edTitle").textContent = (row + 1) + ".º bate, inning " + colLabel(col);
-    document.getElementById("edSub").textContent = TEAM_LABEL[t] + (names.length ? ": " + names.join(" / ") : "");
+    document.getElementById("edSub").textContent = TEAM_LABEL[t] + ". Batea: " + (w.bat.nombre || "sin nombre") +
+      (w.run !== w.bat ? " · Corre: " + (w.run.nombre || "sin nombre") : "");
     editor.hidden = false;
     edOpenedAt = Date.now();
     drawEditor();
@@ -1661,6 +1886,7 @@ table { border-collapse: collapse; table-layout: fixed; }
       '<div class="ed-toggles">' +
       '<button type="button" class="btn ghost toggle chip" data-tg="lanz" aria-pressed="' + (d.cambioLanz ? "true" : "false") + '">' + (d.cambioLanz ? "Cambio de lanzador (" + d.cambioLanz.outs + " out" + (d.cambioLanz.outs === 1 ? "" : "s") + ")" : "Cambio de lanzador") + "</button>" +
       '<button type="button" class="btn ghost toggle chip" data-tg="sust" aria-pressed="' + (d.sust ? "true" : "false") + '">Sustitución</button>' +
+      '<button type="button" class="btn ghost toggle chip" data-tg="corr" aria-pressed="' + (d.corredor ? "true" : "false") + '"' + (reachedBase(d) || d.corredor ? "" : " disabled") + '>Corredor emergente</button>' +
       (ed.col.n > 7 ? '<button type="button" class="btn ghost toggle chip" id="edTie" aria-pressed="' + (d.desempate ? "true" : "false") + '">Desempate</button>' : "") +
       "</div>";
     document.getElementById("edExtra").innerHTML = x;
@@ -1688,12 +1914,13 @@ table { border-collapse: collapse; table-layout: fixed; }
     if (!ed || Date.now() - edOpenedAt < 400) return;
     var team = state.equipos[ed.t], key = ed.row + ":" + ed.col.id;
     if (isEmptyCell(ed.draft)) delete team.casillas[key]; else team.casillas[key] = ed.draft;
-    var askSub = ed.draft.sust && !ed.wasSust ? { t: ed.t, row: ed.row, n: ed.col.n } : null;
+    var askSub = ed.draft.sust && !ed.wasSust ? { t: ed.t, row: ed.row, n: ed.col.n, colId: ed.col.id, tipo: "normal" }
+      : ed.draft.corredor && !ed.wasCorr ? { t: ed.t, row: ed.row, n: ed.col.n, colId: ed.col.id, tipo: "corredor" } : null;
     persist();
     closeEditor();
     render();
     ensureView();
-    if (askSub) substitutionForm(askSub.t, askSub.row, askSub.n + 1);
+    if (askSub) substitutionForm(askSub.t, askSub.row, askSub.tipo === "corredor" ? askSub.n : askSub.n + 1, askSub);
   });
   document.getElementById("edCancel").addEventListener("click", function () {
     if (!ed || Date.now() - edOpenedAt < 400) return;
@@ -1708,7 +1935,15 @@ table { border-collapse: collapse; table-layout: fixed; }
     if (!ed || Date.now() - edOpenedAt < 400) return;
     var pb = e.target.closest("[data-p]"), tg = e.target.closest("[data-tg]");
     if (pb) { pitch(pb.getAttribute("data-p")); return; }
-    if (tg) { if (tg.getAttribute("data-tg") === "lanz") pitcherChangeMenu(); else change(function (d) { d.sust = !d.sust; }); return; }
+    if (tg) {
+      var which = tg.getAttribute("data-tg");
+      if (which === "lanz") pitcherChangeMenu();
+      else if (which === "corr") {
+        if (!reachedBase(ed.draft) && !ed.draft.corredor) { toast("El corredor emergente solo entra si el bateador llega a base."); return; }
+        change(function (d) { d.corredor = !d.corredor; if (d.corredor) d.sust = false; });
+      } else change(function (d) { d.sust = !d.sust; if (d.sust) d.corredor = false; });
+      return;
+    }
     if (!e.target.closest("#edTie")) return;
     change(function (d) {
       d.desempate = !d.desempate;
@@ -1843,9 +2078,20 @@ table { border-collapse: collapse; table-layout: fixed; }
     if (fs && menuState.onField) menuState.onField(e, fs);
   });
 
+  // P2: el 10 (shortfielder) solo si el equipo que defiende lo usa en ese inning
+  function defMax(current) {
+    if (current === 10 || !ed) return 10;
+    var fld = state.equipos[other(ed.t)], n = ed.col.n, any = false, ten = false;
+    for (var j = 0; j < nfil(fld); j++) {
+      var p = String(posAt(fld.lineup[j], n) || "");
+      if (p) any = true;
+      if (p === "10") ten = true;
+    }
+    return ten || !any ? 10 : 9;
+  }
   function numItems(current, pick) {
-    var a = [];
-    for (var n = 1; n <= 10; n++) {
+    var a = [], max = defMax(current);
+    for (var n = 1; n <= max; n++) {
       (function (n) { a.push({ label: String(n), sub: POS[n], pressed: current === n, pick: function () { pick(n); } }); })(n);
     }
     return a;
@@ -2020,11 +2266,23 @@ table { border-collapse: collapse; table-layout: fixed; }
         { label: "H", sub: "Hit", pressed: is("H"), pick: hitMenu },
         simple("HR", "Home run"), simple("BB", "Bolas"), simple("iBB", "Intencional"),
         simple("HbP", "Golpeado"), simple("FC", "Fielder's choice"),
-        { label: "E#", sub: "Error", pressed: is("E"), pick: function () {
-          numMenu("Error: ¿qué defensor?", is("E") ? p.n : null, function (n) { setBatterPlay({ code: "E", n: n }); }, batterPlayMenu);
-        } }
+        { label: "E#", sub: "Error, WP o PB", pressed: is("E") || is("WP") || is("PB"), pick: function () { batterErrMenu(); } }
       ],
       extras: p ? [{ label: "Quitar jugada", pick: function () { setBatterPlay(null); } }] : []
+    });
+  }
+  // Error del bateador, con WP y PB para el tercer strike caído (P1)
+  function batterErrMenu(k3) {
+    var p = ed.draft.batter.play;
+    var isErr = !!p && (p.code === "E" || p.code === "WP" || p.code === "PB");
+    if (k3 === undefined) k3 = isErr && !!p.k3;
+    var items = numItems(p && p.code === "E" ? p.n : null, function (n) { setBatterPlay(k3 ? { code: "E", n: n, k3: true } : { code: "E", n: n }); });
+    items.push({ label: "WP", sub: "Lanz. salvaje", pressed: !!p && p.code === "WP", pick: function () { setBatterPlay({ code: "WP", k3: true }); } });
+    items.push({ label: "PB", sub: "Passed ball", pressed: !!p && p.code === "PB", pick: function () { setBatterPlay({ code: "PB", k3: true }); } });
+    openMenu({
+      title: k3 ? "Tercer strike caído: ¿cómo llegó a base?" : "Error: ¿qué defensor?", cols: 5, back: batterPlayMenu, items: items,
+      note: "WP y PB se anotan como tercer strike caído. Si llegó a base por un error con tercer strike caído, marca primero «Tercer strike caído».",
+      extras: [{ label: "Tercer strike caído", pressed: k3, pick: function () { batterErrMenu(!k3); } }]
     });
   }
   function hitMenu() {
@@ -2073,8 +2331,12 @@ table { border-collapse: collapse; table-layout: fixed; }
       title: "Jugada del avance " + RUN_ZONE[i], cols: 3, back: function () { runnerMenu(i); },
       items: [
         { label: "SB", sub: "Robo", pressed: r.play === "SB", pick: function () { setRunnerPlay(i, "SB", null); } },
-        { label: "E#", sub: "Error (E1 WP, E2 PB)", pressed: r.play === "E", pick: function () {
-          numMenu("Error: ¿qué defensor?", r.play === "E" ? r.e : null, function (n) { setRunnerPlay(i, "E", n); }, function () { runnerPlayMenu(i); });
+        { label: "E#", sub: "Error, WP o PB", pressed: r.play === "E" || r.play === "WP" || r.play === "PB", pick: function () {
+          var its = numItems(r.play === "E" ? r.e : null, function (n) { setRunnerPlay(i, "E", n); });
+          its.push({ label: "WP", sub: "Lanz. salvaje", pressed: r.play === "WP", pick: function () { setRunnerPlay(i, "WP", null); } });
+          its.push({ label: "PB", sub: "Passed ball", pressed: r.play === "PB", pick: function () { setRunnerPlay(i, "PB", null); } });
+          openMenu({ title: "Error, WP o PB", cols: 5, items: its, back: function () { runnerPlayMenu(i); },
+            note: "WP y PB no cuentan como error de ningún defensor." });
         } },
         { label: "—", sub: "En blanco (jugada del bateador)", pressed: !r.play, pick: function () { setRunnerPlay(i, "", null); } }
       ]
@@ -2082,8 +2344,8 @@ table { border-collapse: collapse; table-layout: fixed; }
   }
   function turnoMenu(i) {
     var r = ed.draft.runners[i];
-    var items = [];
-    for (var n = 1; n <= 10; n++) {
+    var items = [], NT = nfil(state.equipos[ed.t]);
+    for (var n = 1; n <= NT; n++) {
       (function (n) {
         items.push({ label: String(n), pressed: r.turno === String(n), pick: function () { change(function (d) { d.runners[i].turno = String(n); }); closeMenu(); } });
       })(n);
@@ -2096,11 +2358,14 @@ table { border-collapse: collapse; table-layout: fixed; }
 
   // Dirección del batazo
   function fieldSVG(dir) {
-    var s = '<svg class="field-svg" viewBox="0 0 300 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Campo: toca hacia dónde fue el batazo">';
+    var s = '<svg class="field-svg" viewBox="-20 0 340 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Campo: toca donde bota la bola">';
+    // Franja de home run, detrás de la valla
+    s += '<path d="M8.6 93.6 A200 200 0 0 1 291.4 93.6 L311.2 73.8 A228 228 0 0 0 -11.2 73.8 Z" fill="#F3DCCF" stroke="#8B3B18" stroke-width="1"/>';
+    s += '<text x="150" y="25" text-anchor="middle" font-family="Barlow Condensed, Arial Narrow, Arial, sans-serif" font-size="17" font-weight="700" fill="#8B3B18">HR</text>';
     s += '<path d="M150 235 L8.6 93.6 A200 200 0 0 1 291.4 93.6 Z" fill="#E4EFE6"/>';
     s += '<path d="M150 235 L105 190 L150 145 L195 190 Z" fill="#EADBC4" stroke="#000" stroke-width="1.2"/>';
     s += '<path d="M150 235 L8.6 93.6 M150 235 L291.4 93.6" stroke="#000" stroke-width="1.5" fill="none"/>';
-    s += '<path d="M8.6 93.6 A200 200 0 0 1 291.4 93.6" stroke="#000" stroke-width="1.5" fill="none"/>';
+    s += '<path d="M8.6 93.6 A200 200 0 0 1 291.4 93.6" stroke="#000" stroke-width="3" fill="none"/>';
     if (dir) {
       var len = Math.min(dir.r, 1.15) * 200;
       s += arrowSVG(150, 235, 150 + Math.sin(dir.a) * len, 235 - Math.cos(dir.a) * len, "#1E8E3E", 3, 12);
@@ -2110,7 +2375,8 @@ table { border-collapse: collapse; table-layout: fixed; }
   function fieldMenu() {
     var dir = ed.draft.dir;
     openMenu({
-      title: "Toca hacia dónde fue el batazo",
+      title: "Toca donde bota la bola",
+      note: "Si la atrapan al aire, toca donde la atrapan. Si es home run, toca en la franja HR, detrás de la valla.",
       body: fieldSVG(dir),
       extras: dir ? [{ label: "Quitar dirección", pick: function () { change(function (d) { d.dir = null; }); closeMenu(); } }] : [],
       onField: function (e, svg) {
@@ -2119,6 +2385,7 @@ table { border-collapse: collapse; table-layout: fixed; }
         var p = pt.matrixTransform(svg.getScreenCTM().inverse());
         var dx = p.x - 150, dy = p.y - 235, r = Math.hypot(dx, dy) / 200;
         if (r < 0.05) return;
+        if (r > 1.14) r = 1.12;
         change(function (d) { d.dir = { a: +Math.atan2(dx, -dy).toFixed(3), r: +r.toFixed(3) }; });
         closeMenu();
         toast("Dirección del batazo anotada.");
@@ -2140,10 +2407,15 @@ table { border-collapse: collapse; table-layout: fixed; }
   document.getElementById("menuBtn").addEventListener("click", function () {
     openPanel('<p class="panel-title">Opciones</p><div class="menu-list">' +
       '<button type="button" class="btn ghost" data-act="home">Menú principal</button>' +
+      '<button type="button" class="btn ghost" data-act="fin">' + (state.terminado ? "Marcar como no terminado" : "Marcar partido como terminado") + '</button>' +
       '<button type="button" class="btn ghost" data-act="export">Exportar este partido</button>' +
       '<button type="button" class="btn ghost" data-act="extra">Añadir inning extra</button>' +
       '<button type="button" class="btn ghost" data-act="cancel">Cerrar</button></div>', function (act) {
       if (act === "home") { closePanel(); backToHome(); }
+      else if (act === "fin") {
+        closePanel(); state.terminado = !state.terminado; persist();
+        toast(state.terminado ? "Partido terminado: cuenta para el balance y los resultados." : "Partido sin terminar.");
+      }
       else if (act === "export") { closePanel(); if (currentRec) exportMenu(currentRec); }
       else if (act === "extra") { closePanel(); addExtraInning(); }
       else closePanel();
@@ -2151,25 +2423,28 @@ table { border-collapse: collapse; table-layout: fixed; }
   });
 
   // ---------- Partidos guardados en el móvil ----------
-  var APP_VERSION = "5.0";
+  var APP_VERSION = "6.0";
   var store = (function () {
     var dbp = null, useLS = false, LSK = "anotacion-softball:partidos";
     function idb() {
       if (!dbp) {
         dbp = new Promise(function (res, rej) {
           if (!window.indexedDB) { rej(new Error("sin almacén")); return; }
-          var rq = indexedDB.open("anotacion-softball", 1);
-          rq.onupgradeneeded = function () { rq.result.createObjectStore("partidos", { keyPath: "id" }); };
+          var rq = indexedDB.open("anotacion-softball", 2);
+          rq.onupgradeneeded = function () {
+            var d = rq.result;
+            ["partidos", "jugadores", "equipos"].forEach(function (n) { if (!d.objectStoreNames.contains(n)) d.createObjectStore(n, { keyPath: "id" }); });
+          };
           rq.onsuccess = function () { res(rq.result); };
           rq.onerror = function () { rej(rq.error); };
         });
       }
       return dbp;
     }
-    function tx(mode, fn) {
+    function tx(mode, fn, name) {
       return idb().then(function (db) {
         return new Promise(function (res, rej) {
-          var t = db.transaction("partidos", mode), rq = fn(t.objectStore("partidos"));
+          var t = db.transaction(name || "partidos", mode), rq = fn(t.objectStore(name || "partidos"));
           t.oncomplete = function () { res(rq ? rq.result : undefined); };
           t.onerror = function () { rej(t.error); };
           t.onabort = function () { rej(t.error); };
@@ -2177,7 +2452,25 @@ table { border-collapse: collapse; table-layout: fixed; }
       });
     }
     function lsAll() { try { return JSON.parse(localStorage.getItem(LSK) || "{}"); } catch (e) { return {}; } }
+    function lsGet(n) { try { return JSON.parse(localStorage.getItem("anotacion-softball:" + n) || "{}"); } catch (e) { return {}; } }
+    function lsSet(n, m) { localStorage.setItem("anotacion-softball:" + n, JSON.stringify(m)); }
     return {
+      allOf: function (n) {
+        if (useLS) { var m = lsGet(n); return Promise.resolve(Object.keys(m).map(function (k) { return m[k]; })); }
+        return tx("readonly", function (s) { return s.getAll(); }, n).catch(function () {
+          useLS = true;
+          var m = lsGet(n);
+          return Object.keys(m).map(function (k) { return m[k]; });
+        });
+      },
+      putIn: function (n, rec) {
+        if (useLS) { var m = lsGet(n); m[rec.id] = rec; lsSet(n, m); return Promise.resolve(); }
+        return tx("readwrite", function (s) { return s.put(rec); }, n);
+      },
+      delIn: function (n, id) {
+        if (useLS) { var m = lsGet(n); delete m[id]; lsSet(n, m); return Promise.resolve(); }
+        return tx("readwrite", function (s) { return s.delete(id); }, n);
+      },
       all: function () {
         return tx("readonly", function (s) { return s.getAll(); }).catch(function () {
           useLS = true;
@@ -2236,6 +2529,7 @@ table { border-collapse: collapse; table-layout: fixed; }
     clearTimeout(saveTimer);
     saveTimer = null;
     if (!currentRec) return Promise.resolve();
+    try { buildTurnos(currentRec.data); } catch (err) { /* el turno se recalcula al abrir las estadísticas */ }
     return store.put(currentRec).catch(function () {
       if (storageOk) { storageOk = false; toast("No se ha podido guardar en este móvil. Exporta el partido para no perderlo."); }
     });
@@ -2256,8 +2550,11 @@ table { border-collapse: collapse; table-layout: fixed; }
 
   function showView(name) {
     homeView.hidden = name !== "home";
+    document.getElementById("dirView").hidden = name !== "dir";
     listView.hidden = name !== "list";
     sheetView.hidden = name !== "sheet";
+    document.getElementById("statsView").hidden = name !== "stats";
+    if (name !== "stats") closeReport();
     currentView = name;
   }
   function enterLevel(name) {
@@ -2290,6 +2587,7 @@ table { border-collapse: collapse; table-layout: fixed; }
       return;
     }
     if (!overlay.hidden) { history.pushState({ v: currentView }, ""); closePanel(); return; }
+    if (!reportEl.hidden) { history.pushState({ v: currentView }, ""); closeReport(); return; }
     goHome();
   });
 
@@ -2327,7 +2625,7 @@ table { border-collapse: collapse; table-layout: fixed; }
     }
     sorted.forEach(function (g) {
       var text = '<span class="game-text"><span class="game-title">' + esc(gameTitle(g)) + '</span>' +
-        '<span class="game-sub">Modificado: ' + esc(fmtDate(g.modificado)) + "</span></span>";
+        '<span class="game-sub">' + (g.data.terminado ? '<b class="fin">Terminado</b> · ' : "") + "Modificado: " + esc(fmtDate(g.modificado)) + "</span></span>";
       if (listMode === "open") {
         h.push('<div class="game"><button type="button" class="game-main" data-open="' + g.id + '">' + text + "</button>" +
           '<button type="button" class="game-del" data-del="' + g.id + '">Borrar</button></div>');
@@ -2532,12 +2830,424 @@ table { border-collapse: collapse; table-layout: fixed; }
     })(0);
   }
 
+  // ---------- Quién batea y quién corre en cada casilla ----------
+  function colIndexOf(team, colId) {
+    for (var i = 0; i < team.columnas.length; i++) if (team.columnas[i].id === colId) return i;
+    return -1;
+  }
+  function whoAt(t, row, colId) { return whoAtD(state, t, row, colId); }
+  function whoAtD(g, t, row, colId) {
+    var team = g.equipos[t], slot = team.lineup[row], sub = slot.sustituto, tit = slot.titular;
+    if (!(sub.nombre || sub.jid)) return { bat: tit, run: tit };
+    var ci = colIndexOf(team, colId), di = sub.desde ? colIndexOf(team, sub.desde) : -1;
+    if (di >= 0) {
+      if (ci > di) return { bat: sub, run: sub };
+      if (ci === di && sub.tipo === "corredor") return { bat: tit, run: sub };
+      return { bat: tit, run: tit };
+    }
+    // Partidos sin casilla de cambio: como en la v5.0, por inning
+    var col = team.columnas[ci], entra = parseInt(sub.inning, 10);
+    var p = col && entra && entra <= col.n ? sub : tit;
+    return { bat: p, run: p };
+  }
+  // ---------- Directorio de jugadores y equipos ----------
+  // Un jugador es un nombre y un dorsal dentro de un equipo. En un mismo equipo
+  // no puede haber dos jugadores con el mismo dorsal.
+  // Preparado para temporadas: cada ficha y cada partido llevan «temporada», y
+  // cada jugador un campo «persona» (vacío) para enlazar en el futuro la misma
+  // persona entre temporadas o equipos.
+  var TEMPORADA = "T1";
+  var dir = { jug: {}, eq: {} };
+  var dirBody = document.getElementById("dirBody");
+  function normName(s) {
+    return String(s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/\s+/g, " ").trim();
+  }
+  function sameName(a, b) { return normName(a) === normName(b); }
+  function byName(a, b) { return a.nombre.localeCompare(b.nombre, "es"); }
+  function byDorsal(a, b) {
+    var x = parseInt(a.dorsal, 10), y = parseInt(b.dorsal, 10);
+    if (isNaN(x) && isNaN(y)) return byName(a, b);
+    if (isNaN(x)) return 1;
+    if (isNaN(y)) return -1;
+    return x - y || byName(a, b);
+  }
+  function dirList(kind) { var m = dir[kind]; return Object.keys(m).map(function (k) { return m[k]; }); }
+  function saveJug(j) { dir.jug[j.id] = j; store.putIn("jugadores", j).catch(function () { /* sin almacén */ }); }
+  function saveEq(e) { dir.eq[e.id] = e; store.putIn("equipos", e).catch(function () { /* sin almacén */ }); }
+  function delJug(id) { delete dir.jug[id]; store.delIn("jugadores", id).catch(function () { /* sin almacén */ }); }
+  function delEq(id) { delete dir.eq[id]; store.delIn("equipos", id).catch(function () { /* sin almacén */ }); }
+  function newJug(nombre, dorsal, pos, eid) {
+    var j = { id: "j" + uid(), nombre: nombre, dorsal: dorsal || "", pos: pos || "", eid: eid || null, temporada: TEMPORADA, persona: null, creado: Date.now() };
+    saveJug(j);
+    if (eid) addToPlantilla(eid, j.id);
+    return j;
+  }
+  function newEq(nombre) {
+    var e = { id: "e" + uid(), nombre: nombre, plantilla: [], temporada: TEMPORADA, creado: Date.now() };
+    saveEq(e);
+    return e;
+  }
+  function addToPlantilla(eid, jid) {
+    var e = dir.eq[eid];
+    if (!e || !jid || e.plantilla.indexOf(jid) >= 0) return;
+    e.plantilla.push(jid);
+    saveEq(e);
+  }
+  function plantillaOf(e) { return e.plantilla.map(function (id) { return dir.jug[id]; }).filter(Boolean); }
+  function dorsalOwner(e, dorsal, exceptId) {
+    if (!dorsal) return null;
+    return plantillaOf(e).filter(function (j) { return j.id !== exceptId && String(j.dorsal) === String(dorsal); })[0] || null;
+  }
+
+  // Personas anotadas en un lado del partido: line-up (titular y sustituto) y lanzadores
+  function sideHolders(data, t) {
+    var tm = data.equipos[t], out = [];
+    for (var j = 0; j < 10; j++) {
+      out.push({ h: tm.lineup[j].titular, lanz: false, row: j });
+      out.push({ h: tm.lineup[j].sustituto, lanz: false, row: j });
+    }
+    tm.lanzadores.forEach(function (l, i) { out.push({ h: l, lanz: true, row: i }); });
+    return out;
+  }
+  function jidUsedElsewhere(jid, holder) {
+    var used = games.some(function (r) {
+      if (r === currentRec) return false;
+      return ["visitante", "local"].some(function (t) { return sideHolders(r.data, t).some(function (x) { return x.h.jid === jid; }); });
+    });
+    return used || ["visitante", "local"].some(function (t) { return sideHolders(state, t).some(function (x) { return x.h !== holder && x.h.jid === jid; }); });
+  }
+  // Enlaza (o crea) la ficha de quien se anota en la hoja. Devuelve { ok, msg }.
+  function resolvePlayer(t, holder, dorsal, nombre, lanz) {
+    var d = String(dorsal || "").trim(), n = String(nombre || "").trim().replace(/\s+/g, " ");
+    if (!n) {
+      if (d) return { ok: false, msg: "Escribe el nombre del jugador." };
+      holder.nombre = ""; holder.dorsal = ""; holder.jid = null;
+      return { ok: true };
+    }
+    var team = state.equipos[t], err = null;
+    if (d) {
+      sideHolders(state, t).forEach(function (x) {
+        if (err || x.h === holder || !x.h.nombre || String(x.h.dorsal) !== d) return;
+        if (!sameName(x.h.nombre, n)) err = "El #" + d + " ya lo lleva " + x.h.nombre + " en este partido. Dos jugadores del mismo equipo no pueden tener el mismo número.";
+        else if (!x.lanz && !lanz) err = n + " (#" + d + ") ya está en el line-up, en el " + (x.row + 1) + ".º bate.";
+      });
+      if (err) return { ok: false, msg: err };
+    }
+    var e = team.eid && dir.eq[team.eid], j = null, created = false;
+    if (!e) { holder.jid = null; holder.nombre = n; holder.dorsal = d; return { ok: true }; }
+    var plant = plantillaOf(e);
+    if (d) {
+      var own = dorsalOwner(e, d);
+      if (own && !sameName(own.nombre, n)) {
+        return { ok: false, msg: "En " + e.nombre + ", el #" + d + " es " + own.nombre + ". Cambia el número o, si ha cambiado de dorsal, corrígelo antes en Jugadores y equipos." };
+      }
+      j = own || plant.filter(function (x) { return !x.dorsal && sameName(x.nombre, n); })[0] || null;
+    } else {
+      var same = plant.filter(function (x) { return sameName(x.nombre, n); });
+      if (same.length === 1) j = same[0];
+    }
+    // Corrección de una ficha que solo se ha usado en esta casilla de la hoja
+    if (!j && holder.jid && dir.jug[holder.jid] && dir.jug[holder.jid].eid === e.id && !jidUsedElsewhere(holder.jid, holder)) {
+      j = dir.jug[holder.jid]; j.nombre = n; j.dorsal = d; saveJug(j);
+    }
+    if (!j) { j = newJug(n, d, lanz ? "1" : holder.pos, e.id); created = true; }
+    if (d && !j.dorsal) { j.dorsal = d; saveJug(j); }
+    holder.jid = j.id; holder.nombre = j.nombre; holder.dorsal = d || j.dorsal || "";
+    if (!lanz && !holder.pos && j.pos) holder.pos = j.pos;
+    return { ok: true, created: created, j: j };
+  }
+  function linkTeam(t, name) {
+    var team = state.equipos[t];
+    name = String(name || "").trim();
+    if (!name) { team.nombre = ""; team.eid = null; return null; }
+    var e = dirList("eq").filter(function (x) { return sameName(x.nombre, name); })[0], created = false;
+    if (!e) { e = newEq(name); created = true; }
+    team.eid = e.id;
+    team.nombre = e.nombre;
+    var bad = [];
+    sideHolders(state, t).forEach(function (x) {
+      if (!x.h.nombre) return;
+      var r = resolvePlayer(t, x.h, x.h.dorsal, x.h.nombre, x.lanz);
+      if (!r.ok) { x.h.jid = null; bad.push(x.h.nombre); }
+    });
+    return { e: e, created: created, bad: bad };
+  }
+  // Aprende la posición habitual si la ficha aún no la tiene
+  function learnHabit(path, value) {
+    var m = /^(equipos\.(?:visitante|local)\.lineup\.\d+\.(?:titular|sustituto))\.pos$/.exec(path);
+    if (!m || !value) return;
+    var holder = getPath(m[1]), j = holder && holder.jid && dir.jug[holder.jid];
+    if (j && !j.pos) { j.pos = value; saveJug(j); }
+  }
+
+  // Campos de la hoja: equipo y jugador (dorsal y nombre juntos)
+  function nameCtx(path) {
+    var m = /^equipos\.(visitante|local)\.nombre$/.exec(path);
+    if (m) return { mode: "team", t: m[1] };
+    m = /^equipos\.(visitante|local)\.lineup\.(\d+)\.(titular|sustituto)\.(nombre|dorsal)$/.exec(path);
+    if (m) return { mode: "player", t: m[1], holder: state.equipos[m[1]].lineup[+m[2]][m[3]], lanz: false, focus: m[4] };
+    m = /^equipos\.(visitante|local)\.lanzadores\.(\d+)\.(nombre|dorsal)$/.exec(path);
+    if (m) return { mode: "player", t: m[1], holder: state.equipos[m[1]].lanzadores[+m[2]], lanz: true, focus: m[3] };
+    return null;
+  }
+  function nameField(label, ctx) { if (ctx.mode === "team") teamField(label, ctx); else playerField(label, ctx); }
+  function playerField(label, ctx) {
+    var holder = ctx.holder, team = state.equipos[ctx.t];
+    var title = label.replace(/^Dorsal del /, "").replace(/^Lanzador (\d+): .*$/, "Lanzador $1");
+    var h = '<p class="panel-title">' + esc(title.charAt(0).toUpperCase() + title.slice(1)) + "</p>" +
+      '<div class="form-row"><input id="pfDorsal" type="text" inputmode="numeric" maxlength="4" placeholder="#" autocomplete="off" value="' + esc(holder.dorsal || "") + '">' +
+      '<input id="pfNombre" type="text" maxlength="60" placeholder="Nombre" autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="words" value="' + esc(holder.nombre || "") + '"></div>' +
+      (team.eid ? "" : '<p class="sug-note">Escribe antes el nombre del equipo para que el jugador se guarde en Jugadores y equipos.</p>') +
+      '<p class="form-error" id="pfErr" hidden></p>' +
+      '<div class="panel-actions">' + (holder.nombre ? '<button type="button" class="btn ghost push-left" data-act="clear">Quitar</button>' : "") +
+      '<button type="button" class="btn ghost" data-act="cancel">Cancelar</button><button type="button" class="btn primary" data-act="save">Guardar</button></div>';
+    openPanel(h, function (act) {
+      if (act === "cancel") { closePanel(); return; }
+      var r = act === "clear" ? resolvePlayer(ctx.t, holder, "", "", ctx.lanz)
+        : resolvePlayer(ctx.t, holder, document.getElementById("pfDorsal").value, document.getElementById("pfNombre").value, ctx.lanz);
+      if (!r.ok) { var er = document.getElementById("pfErr"); er.textContent = r.msg; er.hidden = false; return; }
+      persist(); closePanel(); render(); ensureView();
+      if (r.created) toast("Jugador nuevo guardado en " + team.nombre + ": " + r.j.nombre);
+    });
+    var inp = document.getElementById(ctx.focus === "dorsal" ? "pfDorsal" : "pfNombre");
+    inp.focus();
+    try { inp.setSelectionRange(inp.value.length, inp.value.length); } catch (err) { /* sin cursor */ }
+  }
+  function teamField(label, ctx) {
+    var team = state.equipos[ctx.t], teams = dirList("eq").sort(byName);
+    var h = '<p class="panel-title">' + esc(label) + "</p>" +
+      '<input id="fieldInput" type="text" maxlength="60" autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="words" placeholder="Nombre del equipo" value="' + esc(team.nombre || "") + '">';
+    if (teams.length) {
+      h += '<p class="form-label">Equipos guardados</p><div class="menu-list">';
+      teams.forEach(function (e) { h += '<button type="button" class="btn ghost toggle" data-act="pick" data-val="' + e.id + '" aria-pressed="' + (team.eid === e.id ? "true" : "false") + '">' + esc(e.nombre) + "</button>"; });
+      h += "</div>";
+    }
+    h += '<div class="panel-actions"><button type="button" class="btn ghost" data-act="cancel">Cancelar</button><button type="button" class="btn primary" data-act="save">Guardar</button></div>';
+    openPanel(h, function (act, val) {
+      if (act === "cancel") { closePanel(); return; }
+      var name = act === "pick" ? dir.eq[val].nombre : document.getElementById("fieldInput").value.trim();
+      var r = linkTeam(ctx.t, name);
+      persist(); closePanel(); render(); ensureView();
+      if (r && r.bad.length) toast("Revisa los dorsales de: " + r.bad.join(", ") + ". Coinciden con otro jugador del equipo.");
+      else if (r && r.created) toast("Equipo nuevo guardado: " + r.e.nombre);
+      if (r) offerCopy(ctx.t, r.e);
+    });
+    document.getElementById("fieldInput").focus();
+  }
+
+  // Copiar el line-up del último partido del equipo
+  function lastLineup(eid) {
+    var best = null;
+    games.forEach(function (g) {
+      if (g === currentRec) return;
+      ["visitante", "local"].forEach(function (t) {
+        var e = g.data.equipos[t];
+        if (e.eid !== eid || !e.lineup.some(function (s) { return s.titular.nombre; })) return;
+        if (!best || g.modificado > best.rec.modificado) best = { rec: g, team: e };
+      });
+    });
+    return best;
+  }
+  function offerCopy(t, e) {
+    var team = state.equipos[t];
+    if (team.lineup.some(function (s) { return s.titular.nombre; })) return;
+    var last = lastLineup(e.id);
+    if (!last) return;
+    openPanel('<p class="panel-title">Line-up de ' + esc(e.nombre) + '</p><p class="panel-text">¿Copiar el line-up de su último partido (' +
+      esc(gameTitle(last.rec)) + ')? Después puedes cambiar a quien haga falta.</p>' +
+      '<div class="panel-actions"><button type="button" class="btn ghost" data-act="cancel">No, gracias</button>' +
+      '<button type="button" class="btn primary" data-act="copy">Copiar line-up</button></div>', function (act) {
+      if (act === "copy") {
+        team.filas = nfil(last.team);
+        last.team.lineup.forEach(function (s, i) {
+          if (i >= team.filas) return;
+          var tt = team.lineup[i].titular, src = s.titular, j = src.jid && dir.jug[src.jid];
+          tt.dorsal = j ? j.dorsal : src.dorsal; tt.nombre = j ? j.nombre : src.nombre; tt.pos = src.pos; tt.jid = j ? j.id : null;
+        });
+        persist(); closePanel(); render(); ensureView();
+        toast("Line-up copiado.");
+      } else closePanel();
+    });
+  }
+
+  // ---------- Pantalla «Jugadores y equipos» ----------
+  // Partidos en los que ha jugado alguien (o un equipo): solo los que tienen algo anotado
+  function usageOf(kind, id) {
+    var fin = 0, open = 0;
+    games.forEach(function (r) {
+      if (!hasCells(r.data)) return;
+      var hit = ["visitante", "local"].some(function (t) {
+        return kind === "eq" ? r.data.equipos[t].eid === id : sideHolders(r.data, t).some(function (x) { return x.h.jid === id; });
+      });
+      if (hit) { if (r.data.terminado) fin++; else open++; }
+    });
+    return { fin: fin, open: open, total: fin + open };
+  }
+  function usageText(u, who) {
+    if (!u.total) return "";
+    var parts = [];
+    if (u.fin) parts.push(u.fin + (u.fin === 1 ? " partido terminado" : " partidos terminados"));
+    if (u.open) parts.push(u.open + (u.open === 1 ? " partido sin terminar" : " partidos sin terminar"));
+    return who + " ha jugado en " + parts.join(" y ") + "." + (u.open ? " Los partidos sin terminar se pueden seguir anotando, pero su nombre ya no se podrá corregir desde aquí." : "") +
+      " Las hojas y las estadísticas de esos partidos se conservan.";
+  }
+  function showDir() { enterLevel("dir"); renderDir(); }
+  function renderDir() {
+    var h = [], inTeam = {}, teams = dirList("eq").sort(byName);
+    if (!teams.length && !dirList("jug").length) {
+      h.push('<div class="list-empty"><p>Aún no hay jugadores ni equipos. Se guardan solos al escribirlos en la hoja, o puedes darlos de alta aquí.</p></div>');
+    }
+    function row(j) {
+      return '<li><button type="button" class="dir-row dir-btn" data-jug="' + j.id + '"><span class="dir-num">' + esc(j.dorsal ? "#" + j.dorsal : "") + '</span><span class="sug-text"><span class="sug-name">' + esc(j.nombre) + "</span>" +
+        '<span class="sug-sub">' + esc(j.pos && POS[j.pos] ? POS[j.pos] : "Sin posición") + "</span></span></button></li>";
+    }
+    teams.forEach(function (e) {
+      var ps = plantillaOf(e).sort(byDorsal);
+      ps.forEach(function (j) { inTeam[j.id] = 1; });
+      h.push('<section class="dir-team"><button type="button" class="dir-team-name dir-btn" data-eq="' + e.id + '">' + esc(e.nombre) + "<span>" + (ps.length === 1 ? "1 jugador" : ps.length + " jugadores") + ' · Editar</span></button><ul class="dir-players">');
+      ps.forEach(function (j) { h.push(row(j)); });
+      if (!ps.length) h.push('<li class="dir-row dir-empty">Sin jugadores todavía</li>');
+      h.push("</ul></section>");
+    });
+    var loose = dirList("jug").filter(function (j) { return !inTeam[j.id]; }).sort(byName);
+    if (loose.length) {
+      h.push('<section class="dir-team"><h2 class="dir-team-name">Sin equipo<span>' + loose.length + '</span></h2><ul class="dir-players">');
+      loose.forEach(function (j) { h.push(row(j)); });
+      h.push("</ul></section>");
+    }
+    dirBody.innerHTML = h.join("");
+  }
+  dirBody.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-jug]");
+    if (b) { playerForm(dir.jug[b.getAttribute("data-jug")]); return; }
+    b = e.target.closest("[data-eq]");
+    if (b) teamForm(dir.eq[b.getAttribute("data-eq")]);
+  });
+  function formError(id, msg) { var n = document.getElementById(id); n.textContent = msg; n.hidden = false; }
+  function confirmPanel(title, text, okLabel, onOk, back) {
+    openPanel('<p class="panel-title">' + esc(title) + '</p><p class="panel-text">' + esc(text) + "</p>" +
+      '<div class="panel-actions"><button type="button" class="btn ghost" data-act="cancel">Cancelar</button><button type="button" class="btn danger" data-act="ok">' + esc(okLabel) + "</button></div>",
+      function (act) { if (act === "ok") onOk(); else if (back) back(); else closePanel(); });
+  }
+  // Alta y edición de un jugador (j vacío = nuevo)
+  function playerForm(j) {
+    var isNew = !j, f = { pos: j ? j.pos || "" : "", eid: j ? j.eid || (dirList("eq").filter(function (e) { return e.plantilla.indexOf(j.id) >= 0; })[0] || {}).id || "" : "" };
+    var teams = dirList("eq").sort(byName);
+    if (isNew && !teams.length) { toast("Crea antes un equipo: cada jugador pertenece a un equipo."); return; }
+    if (isNew && teams.length === 1) f.eid = teams[0].id;
+    var h = '<p class="panel-title">' + (isNew ? "Nuevo jugador" : "Editar jugador") + "</p>" +
+      '<div class="form-row"><input id="pfDorsal" type="text" inputmode="numeric" maxlength="4" placeholder="#" autocomplete="off" value="' + esc(j ? j.dorsal : "") + '">' +
+      '<input id="pfNombre" type="text" maxlength="60" placeholder="Nombre" autocomplete="off" autocapitalize="words" value="' + esc(j ? j.nombre : "") + '"></div>' +
+      '<p class="form-label">Posición habitual</p><div class="choices">';
+    Object.keys(POS).forEach(function (k) { h += '<button type="button" class="choice" data-act="pos" data-val="' + k + '" aria-pressed="' + (String(f.pos) === k ? "true" : "false") + '">' + posLbl(k) + "<small>" + esc(POS[k]) + "</small></button>"; });
+    h += "</div>";
+    if (isNew) {
+      h += '<p class="form-label">Equipo</p><div class="menu-list">';
+      teams.forEach(function (e) { h += '<button type="button" class="btn ghost toggle" data-act="eq" data-val="' + e.id + '" aria-pressed="' + (f.eid === e.id ? "true" : "false") + '">' + esc(e.nombre) + "</button>"; });
+      h += "</div>";
+    } else if (f.eid && dir.eq[f.eid]) h += '<p class="sug-note">Equipo: ' + esc(dir.eq[f.eid].nombre) + "</p>";
+    h += '<p class="form-error" id="pfErr" hidden></p><div class="panel-actions">' +
+      (isNew ? "" : '<button type="button" class="btn danger push-left" data-act="del">Eliminar</button>') +
+      '<button type="button" class="btn ghost" data-act="cancel">Cancelar</button><button type="button" class="btn primary" data-act="save">Guardar</button></div>';
+    var draft = null;
+    function open() {
+      openPanel(h, function (act, val) {
+        if (act === "pos" || act === "eq") {
+          if (act === "pos") f.pos = f.pos === val ? "" : val; else f.eid = val;
+          var cur = act === "pos" ? f.pos : f.eid;
+          panel.querySelectorAll('[data-act="' + act + '"]').forEach(function (b) { b.setAttribute("aria-pressed", b.getAttribute("data-val") === String(cur) ? "true" : "false"); });
+          return;
+        }
+        if (act === "cancel") { closePanel(); return; }
+        if (act === "del") {
+          draft = { d: document.getElementById("pfDorsal").value, n: document.getElementById("pfNombre").value };
+          var u = usageOf("jug", j.id);
+          confirmPanel("¿Eliminar a " + j.nombre + "?", (usageText(u, j.nombre) || "No ha jugado ningún partido.") + " Desaparece de Jugadores y equipos.", "Eliminar", function () {
+            var e = f.eid && dir.eq[f.eid];
+            if (e) { e.plantilla = e.plantilla.filter(function (id) { return id !== j.id; }); saveEq(e); }
+            delJug(j.id); closePanel(); renderDir(); toast("Jugador eliminado: " + j.nombre);
+          }, function () { open(); document.getElementById("pfDorsal").value = draft.d; document.getElementById("pfNombre").value = draft.n; });
+          return;
+        }
+        var d = document.getElementById("pfDorsal").value.trim(), n = document.getElementById("pfNombre").value.trim().replace(/\s+/g, " ");
+        if (!n) { formError("pfErr", "Escribe el nombre del jugador."); return; }
+        if (!f.eid) { formError("pfErr", "Elige su equipo."); return; }
+        var own = dorsalOwner(dir.eq[f.eid], d, j ? j.id : null);
+        if (own) { formError("pfErr", "En " + dir.eq[f.eid].nombre + " el #" + d + " ya es de " + own.nombre + ". Dos jugadores del mismo equipo no pueden tener el mismo número."); return; }
+        if (isNew) newJug(n, d, f.pos, f.eid);
+        else { j.nombre = n; j.dorsal = d; j.pos = f.pos; if (!j.eid) j.eid = f.eid; saveJug(j); }
+        closePanel(); renderDir(); toast((isNew ? "Jugador guardado: " : "Cambios guardados: ") + n);
+      });
+    }
+    open();
+    if (isNew) document.getElementById("pfNombre").focus();
+  }
+  // Alta y edición de un equipo (e vacío = nuevo)
+  function teamForm(e) {
+    var isNew = !e, n0 = e ? plantillaOf(e).length : 0;
+    var h = '<p class="panel-title">' + (isNew ? "Nuevo equipo" : "Editar equipo") + "</p>" +
+      '<input id="fieldInput" type="text" maxlength="60" autocomplete="off" autocapitalize="words" placeholder="Nombre del equipo" value="' + esc(e ? e.nombre : "") + '">' +
+      '<p class="form-error" id="pfErr" hidden></p><div class="panel-actions">' +
+      (isNew ? "" : '<button type="button" class="btn danger push-left" data-act="del">Eliminar equipo</button>') +
+      '<button type="button" class="btn ghost" data-act="cancel">Cancelar</button><button type="button" class="btn primary" data-act="save">Guardar</button></div>';
+    openPanel(h, function (act) {
+      if (act === "cancel") { closePanel(); return; }
+      if (act === "del") {
+        var u = usageOf("eq", e.id);
+        confirmPanel("¿Eliminar " + e.nombre + " y sus " + (n0 === 1 ? "1 jugador" : n0 + " jugadores") + "?",
+          (usageText(u, e.nombre) || "No ha jugado ningún partido.") + " El equipo y todos sus jugadores desaparecen de Jugadores y equipos. ¿Seguro?", "Eliminar equipo", function () {
+            plantillaOf(e).forEach(function (j) { delJug(j.id); });
+            delEq(e.id); closePanel(); renderDir(); toast("Equipo eliminado: " + e.nombre);
+          }, function () { teamForm(e); });
+        return;
+      }
+      var name = document.getElementById("fieldInput").value.trim().replace(/\s+/g, " ");
+      if (!name) { formError("pfErr", "Escribe el nombre del equipo."); return; }
+      var ex = dirList("eq").filter(function (x) { return x !== e && sameName(x.nombre, name); })[0];
+      if (ex) { formError("pfErr", "Ya existe un equipo llamado " + ex.nombre + "."); return; }
+      if (isNew) newEq(name); else { e.nombre = name; saveEq(e); }
+      closePanel(); renderDir(); toast((isNew ? "Equipo guardado: " : "Cambios guardados: ") + name);
+    });
+    document.getElementById("fieldInput").focus();
+  }
+  function newTeamForm() { teamForm(null); }
+  function newPlayerForm() { playerForm(null); }
+
+  // ---------- Carga del directorio y datos de prueba ----------
+  function loadDir() {
+    return Promise.all([store.allOf("jugadores"), store.allOf("equipos")]).then(function (res) {
+      (res[0] || []).forEach(function (j) { dir.jug[j.id] = j; });
+      (res[1] || []).forEach(function (e) {
+        if (!Array.isArray(e.plantilla)) e.plantilla = [];
+        if (!e.temporada) e.temporada = TEMPORADA;
+        dir.eq[e.id] = e;
+        e.plantilla.forEach(function (id) { var j = dir.jug[id]; if (j && !j.eid) j.eid = e.id; });
+      });
+      dirList("jug").forEach(function (j) { if (!j.temporada) j.temporada = TEMPORADA; if (j.persona === undefined) j.persona = null; });
+    }).catch(function () { /* sin directorio */ });
+  }
+
   // ---------- Menú inicial ----------
   document.getElementById("homeNew").addEventListener("click", createGame);
   document.getElementById("homeOpen").addEventListener("click", function () { showList("open"); });
-  document.getElementById("homeLoad").addEventListener("click", function () { fileInput.click(); });
-  document.getElementById("homeExport").addEventListener("click", function () { showList("export"); });
+  document.getElementById("homeTransfer").addEventListener("click", function () {
+    openPanel('<p class="panel-title">Exportar/Importar partido</p><div class="menu-list">' +
+      '<button type="button" class="btn ghost" data-act="exp">Exportar partido: archivo para otro móvil o hoja en PDF</button>' +
+      '<button type="button" class="btn ghost" data-act="imp">Importar partido: archivo traído de otro móvil</button>' +
+      '<button type="button" class="btn ghost" data-act="cancel">Cerrar</button></div>', function (act) {
+      closePanel();
+      if (act === "exp") showList("export");
+      else if (act === "imp") fileInput.click();
+    });
+  });
+  ["homeDirTransfer"].forEach(function (id) {
+    document.getElementById(id).addEventListener("click", function () { toast("Disponible próximamente."); });
+  });
   document.getElementById("listBack").addEventListener("click", backToHome);
+  document.getElementById("homeDir").addEventListener("click", showDir);
+  document.getElementById("dirBack").addEventListener("click", backToHome);
+  document.getElementById("dirNewTeam").addEventListener("click", newTeamForm);
+  document.getElementById("dirNewPlayer").addEventListener("click", newPlayerForm);
   document.getElementById("appVersion").textContent = "Versión " + APP_VERSION;
 
   function migrateLegacy() {
@@ -2561,12 +3271,607 @@ table { border-collapse: collapse; table-layout: fixed; }
       games = (list || []).filter(function (r) { return r && r.data && isValid(r.data); });
       games.forEach(function (r) { migrate(r.data); });
       return migrateLegacy();
-    }).catch(function () { /* sin partidos */ }).then(updateHome);
-    if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) {
+    }).catch(function () { /* sin partidos */ }).then(loadDir).then(updateHome);
+    if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("./sw.js").catch(function () { /* sin modo offline */ });
     }
     if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(function () { /* nada */ });
   }
+
+  // ---------- 10.º bateador ----------
+  function toggleRow10(act) {
+    var team = state.equipos[active];
+    if (act === "add") {
+      team.filas = 10; persist(); render(); ensureView(); toast("10.º bateador añadido.");
+    } else if (row10Empty(team)) {
+      team.filas = 9;
+      var s = team.lineup[9], sb = blankPlayer(); sb.inning = "";
+      s.titular = blankPlayer(); s.sustituto = sb; s.cambiosPos = [];
+      persist(); render(); ensureView(); toast("10.º bateador quitado.");
+    }
+  }
+
+  // ---------- Jugadas como datos con significado (anexo A1) ----------
+  var RES_HIT = { 1: "1B", 2: "2B", 3: "3B" };
+  var RES_BAT = { HR: "HR", BB: "BB", iBB: "IBB", HbP: "HBP", FC: "FC", E: "E", WP: "K3", PB: "K3" };
+  function personOf(p) { return p && (p.nombre || p.jid) ? { jid: p.jid || null, nombre: p.nombre || "", dorsal: p.dorsal || "" } : null; }
+  function resultadoOf(c) {
+    if (!isPA(c)) return "";
+    var bp = c.batter.play, op = c.outPlay;
+    if (bp) return bp.k3 ? "K3" : bp.code === "H" ? (RES_HIT[bp.n] || "1B") : (RES_BAT[bp.code] || bp.code);
+    return op.code === "Kc" ? "KC" : op.code;
+  }
+  function baseOf(c) {
+    if (scored(c)) return 4;
+    var b = 0;
+    while (b < 4 && c.lines[b] === 1) b++;
+    return b;
+  }
+  function defsOf(op) { return op.seq ? op.seq.slice() : op.n ? [op.n] : []; }
+  // Jugador del equipo t que ocupa la posición pos en el inning n
+  function fielderAt(g, t, n, pos) {
+    var team = g.equipos[t];
+    for (var j = 0; j < nfil(team); j++) {
+      var slot = team.lineup[j];
+      if (String(posAt(slot, n)) === String(pos)) return activeAt(slot, n);
+    }
+    return null;
+  }
+  function buildTurnos(g) {
+    ["visitante", "local"].forEach(function (t) {
+      var team = g.equipos[t], fld = g.equipos[other(t)], idx = 0, nL = fld.lanzadores.length;
+      gameOrder(team).forEach(function (o) {
+        var c = o.c, n = o.col.n, op = c.outPlay, bp = c.batter.play;
+        var w = whoAtD(g, t, o.row, o.col.id), lz = fld.lanzadores[idx] || {};
+        var tu = {
+          fila: o.row, inning: n, colId: o.col.id,
+          bateador: personOf(w.bat), corredor: personOf(w.run), lanzador: personOf(lz),
+          resultado: resultadoOf(c), aparicion: isPA(c), turnoOficial: isAB(c),
+          baseAlcanzada: baseOf(c), carrera: scored(c), impulsadas: c.batter.rbi || 0, k3: !!(bp && bp.k3),
+          lob: isLOB(c), out: null, avances: [], errores: [],
+          direccion: c.dir ? { a: c.dir.a, r: c.dir.r } : null, lanzamientos: pitchesOf(c), desempate: !!c.desempate
+        };
+        if (c.out || op || c.lines.indexOf(2) >= 0) {
+          tu.out = { num: c.out || null, comoCorredor: outAsRunner(c), tramo: c.lines.indexOf(2), codigo: op ? op.code : "", defensores: op ? defsOf(op) : [], mod: (op && op.mod) || "" };
+        }
+        c.runners.forEach(function (r, i) {
+          if (r.play || r.turno) tu.avances.push({ tramo: i + 1, causa: r.play || "", defensor: r.play === "E" ? r.e : null, fila: r.turno || "" });
+        });
+        function addErr(p) {
+          var pl = fielderAt(g, other(t), n, p) || (String(p) === "1" ? lz : null);
+          tu.errores.push({ pos: +p, jugador: personOf(pl) });
+        }
+        if (bp && bp.code === "E" && bp.n) addErr(bp.n);
+        c.runners.forEach(function (r) { if (r.play === "E" && r.e) addErr(r.e); });
+        c.turno = tu;
+        if (c.cambioLanz && idx < nL - 1) idx++;
+      });
+    });
+    g.formato = 2;
+    return g;
+  }
+
+  // ---------- Estadísticas de varios partidos ----------
+  var MESES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+  function gameDate(rec) {
+    var f = (rec.data.partido.fecha || "").trim(), m;
+    if ((m = /^(\d{4})-(\d{1,2})-(\d{1,2})/.exec(f))) return new Date(+m[1], +m[2] - 1, +m[3]);
+    if ((m = /(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})/.exec(f))) {
+      var y = +m[3]; if (y < 100) y += 2000;
+      return new Date(y, +m[2] - 1, +m[1]);
+    }
+    return new Date(rec.creado);
+  }
+  function dShort(d) { return d.getDate() + " " + MESES[d.getMonth()]; }
+  function dRange(a, b) {
+    if (!a) return "";
+    if (a.toDateString() === b.toDateString()) return dShort(a) + " " + a.getFullYear();
+    return "del " + dShort(a) + (a.getFullYear() !== b.getFullYear() ? " " + a.getFullYear() : "") + " al " + dShort(b) + " " + b.getFullYear();
+  }
+  function pct(num, den) {
+    if (!den) return "—";
+    var v = num / den;
+    return v >= 1 ? v.toFixed(3) : v.toFixed(3).replace(/^0/, "");
+  }
+  function ipFmt(outs) { return Math.floor(outs / 3) + "." + (outs % 3); }
+  function pkey(p) { return !p ? null : p.jid ? p.jid : p.nombre ? "n:" + normName(p.nombre) : null; }
+  function tkey(team) { return team.eid ? team.eid : team.nombre ? "n:" + normName(team.nombre) : null; }
+  function newBat() { return { PA: 0, AB: 0, H: 0, "1B": 0, "2B": 0, "3B": 0, HR: 0, R: 0, RBI: 0, BB: 0, HbP: 0, K: 0, SB: 0, SH: 0, SF: 0, LOB: 0 }; }
+  function newDef() { return { PO: 0, A: 0, E: 0, DP: 0 }; }
+  function hasCells(g) { return ["visitante", "local"].some(function (t) { return Object.keys(g.equipos[t].casillas).length > 0; }); }
+  // Solo la copia más reciente de cada partido (v2, v3…) y los que tienen algo anotado
+  function statGames() {
+    var best = {};
+    games.forEach(function (r) {
+      var f = r.familia || r.id, b = best[f];
+      if (!b || (r.version || 1) > (b.version || 1) || ((r.version || 1) === (b.version || 1) && r.modificado > b.modificado)) best[f] = r;
+    });
+    return Object.keys(best).map(function (k) { return best[k]; }).filter(function (r) { return hasCells(r.data); })
+      .sort(function (a, b) { return gameDate(a) - gameDate(b); });
+  }
+
+  function computeAll() {
+    var P = {}, T = {}, list = statGames(), nUnf = 0;
+    function player(p, date) {
+      var k = pkey(p);
+      if (!k) return null;
+      var o = P[k];
+      if (!o) o = P[k] = { key: k, jid: p.jid || null, nombre: p.nombre, dorsal: "", dDate: 0, bat: newBat(), def: newDef(), pit: { outs: 0, H: 0, R: 0, ER: 0, BB: 0, K: 0, HR: 0, used: false }, games: {}, teams: {}, pos: {}, spray: [] };
+      if (p.jid && dir.jug[p.jid]) o.nombre = dir.jug[p.jid].nombre;
+      else if (date && date >= o.dDate && p.nombre) o.nombre = p.nombre;
+      if (p.dorsal && date >= o.dDate) { o.dorsal = p.dorsal; o.dDate = date; }
+      return o;
+    }
+    function team(tm) {
+      var k = tkey(tm);
+      if (!k) return null;
+      var o = T[k];
+      if (!o) o = T[k] = { key: k, nombre: tm.nombre, games: [], results: [], bat: newBat(), def: newDef(), innFor: {}, innAg: {}, maxInn: 0, roster: {}, pitchers: {}, pitOrder: [] };
+      if (tm.eid && dir.eq[tm.eid]) o.nombre = dir.eq[tm.eid].nombre;
+      return o;
+    }
+    function rosterOf(TT, p, date) {
+      var k = pkey(p);
+      if (!TT || !k) return null;
+      var o = TT.roster[k];
+      if (!o) o = TT.roster[k] = { key: k, nombre: p.nombre, dorsal: "", dDate: 0, bat: newBat(), E: 0, G: {}, rows: [], pos: {} };
+      if (p.jid && dir.jug[p.jid]) o.nombre = dir.jug[p.jid].nombre;
+      if (p.dorsal && date >= o.dDate) { o.dorsal = p.dorsal; o.dDate = date; }
+      return o;
+    }
+
+    list.forEach(function (rec) {
+      var g = rec.data, gid = rec.id, date = gameDate(rec);
+      buildTurnos(g);
+      if (!g.terminado) nUnf++;
+      var runsBy = { visitante: {}, local: {} }, maxN = 0;
+      ["visitante", "local"].forEach(function (t) {
+        var tm = g.equipos[t], map = colById(tm);
+        Object.keys(tm.casillas).forEach(function (k) {
+          var col = map[k.split(":")[1]], c = tm.casillas[k];
+          if (!col) return;
+          if (col.col.n > maxN) maxN = col.col.n;
+          if (scored(c)) runsBy[t][col.col.n] = (runsBy[t][col.col.n] || 0) + 1;
+        });
+      });
+      function total(t) { return Object.keys(runsBy[t]).reduce(function (s, n) { return s + runsBy[t][n]; }, 0); }
+
+      ["visitante", "local"].forEach(function (t) {
+        var tm = g.equipos[t], op = g.equipos[other(t)], TT = team(tm), oppName = (op.eid && dir.eq[op.eid] ? dir.eq[op.eid].nombre : op.nombre) || TEAM_LABEL[other(t)];
+        var campo = t === "local" ? "vs" : "@";
+        if (TT) {
+          TT.games.push(gid);
+          if (g.terminado) {
+            var rf = total(t), ra = total(other(t));
+            TT.results.push({ date: date, rival: oppName, campo: t === "local" ? "Local" : "Visitante", rf: rf, ra: ra, extra: maxN > 7 ? maxN : 0 });
+            Object.keys(runsBy[t]).forEach(function (n) { TT.innFor[n] = (TT.innFor[n] || 0) + runsBy[t][n]; });
+            Object.keys(runsBy[other(t)]).forEach(function (n) { TT.innAg[n] = (TT.innAg[n] || 0) + runsBy[other(t)][n]; });
+            if (maxN > TT.maxInn) TT.maxInn = maxN;
+          }
+        }
+        // Quién jugó: line-up (titular y sustituto) y lanzadores
+        function inGame(p, row, posArr) {
+          var o = player(p, date);
+          if (!o) return;
+          if (!o.games[gid]) {
+            o.games[gid] = { date: date, rival: oppName, campo: campo, AB: 0, H: 0, R: 0, RBI: 0, XBH: [], E: 0, team: TT ? TT.key : null };
+            if (TT) o.teams[TT.key] = (o.teams[TT.key] || 0) + 1;
+            o.gpos = o.gpos || {};
+          }
+          o.gpos[gid] = o.gpos[gid] || {};
+          (posArr || []).forEach(function (ps) { if (ps && !o.gpos[gid][ps]) { o.gpos[gid][ps] = 1; o.pos[ps] = (o.pos[ps] || 0) + 1; } });
+          var r = rosterOf(TT, p, date);
+          if (r) {
+            r.G[gid] = 1;
+            if (row != null) r.rows.push(row);
+            r.gpos = r.gpos || {};
+            r.gpos[gid] = r.gpos[gid] || {};
+            (posArr || []).forEach(function (ps) { if (ps && !r.gpos[gid][ps]) { r.gpos[gid][ps] = 1; r.pos[ps] = (r.pos[ps] || 0) + 1; } });
+          }
+        }
+        for (var j = 0; j < nfil(tm); j++) {
+          var slot = tm.lineup[j];
+          if (slot.titular.nombre || slot.titular.jid) inGame(slot.titular, j, posList(slot, "titular"));
+          if (slot.sustituto.nombre || slot.sustituto.jid) inGame(slot.sustituto, j + 0.5, posList(slot, "sustituto"));
+        }
+        var ps = pitcherStatsD(g, t);
+        tm.lanzadores.forEach(function (lz, i) {
+          var st = ps[i];
+          if (!st || !(lz.nombre || lz.jid)) return;
+          inGame(lz, null, ["1"]);
+          var o = player(lz, date), er = parseInt(lz.er, 10) || 0;
+          if (o) { o.pit.used = true; o.pit.outs += st.outs; o.pit.H += st.h; o.pit.R += st.r; o.pit.ER += er; o.pit.BB += st.bb; o.pit.K += st.k; o.pit.HR += st.hr; }
+          if (TT) {
+            var k = pkey(lz), q = TT.pitchers[k];
+            if (!q) { q = TT.pitchers[k] = { nombre: o ? o.nombre : lz.nombre, dorsal: lz.dorsal, outs: 0, H: 0, R: 0, ER: 0, BB: 0, K: 0, HR: 0 }; TT.pitOrder.push(k); }
+            if (lz.dorsal) q.dorsal = lz.dorsal;
+            q.outs += st.outs; q.H += st.h; q.R += st.r; q.ER += er; q.BB += st.bb; q.K += st.k; q.HR += st.hr;
+          }
+        });
+
+        // Bateo: cada casilla del equipo que batea
+        var FT = team(op);
+        Object.keys(tm.casillas).forEach(function (key) {
+          var c = tm.casillas[key], tu = c.turno;
+          if (!tu) return;
+          var b = player(tu.bateador || {}, date), rn = player(tu.corredor || {}, date);
+          var rb = rosterOf(TT, tu.bateador || {}, date), rr = rosterOf(TT, tu.corredor || {}, date);
+          var bats = [b && b.bat, rb && rb.bat, TT && TT.bat].filter(Boolean);
+          var runs = [rn && rn.bat, rr && rr.bat, TT && TT.bat].filter(Boolean);
+          var gb = b && b.games[gid], gr = rn && rn.games[gid];
+          function add(arr, f, v) { arr.forEach(function (o) { o[f] += v; }); }
+          if (tu.aparicion) {
+            var res = tu.resultado;
+            add(bats, "PA", 1);
+            if (tu.turnoOficial) { add(bats, "AB", 1); if (gb) gb.AB++; }
+            if (res === "1B" || res === "2B" || res === "3B" || res === "HR") {
+              add(bats, "H", 1); add(bats, res, 1);
+              if (gb) { gb.H++; if (res !== "1B") gb.XBH.push(res); }
+            }
+            if (res === "BB" || res === "IBB") add(bats, "BB", 1);
+            if (res === "HBP") add(bats, "HbP", 1);
+            if (res === "K" || res === "KC" || res === "K3") add(bats, "K", 1);
+            if (res === "SH") add(bats, "SH", 1);
+            if (res === "SF") add(bats, "SF", 1);
+            add(bats, "RBI", tu.impulsadas);
+            if (gb) gb.RBI += tu.impulsadas;
+            if (b && tu.direccion && ["BB", "IBB", "HBP", "K", "KC", "K3"].indexOf(res) < 0) {
+              b.spray.push({ a: tu.direccion.a, r: tu.direccion.r, type: ["1B", "2B", "3B", "HR"].indexOf(res) >= 0 ? (res === "HR" ? "hr" : "hit") : (res === "SH" || res === "SF") ? "sac" : "out" });
+            }
+          }
+          if (tu.carrera) { add(runs, "R", 1); if (gr) gr.R++; }
+          c.runners.forEach(function (r) { if (r.play === "SB") add(runs, "SB", 1); });
+          if (tu.lob) add(runs, "LOB", 1);
+
+          // Defensa del equipo que fildea
+          var n = tu.inning, o2 = c.outPlay, po = [], as = [], dp = false;
+          if (o2) {
+            if (o2.code === "K" || o2.code === "Kc") { if (!reachedBase(c)) po.push(2); }
+            else if (RUNNER_OUTS.indexOf(o2.code) < 0 || o2.seq) {
+              var seq = defsOf(o2);
+              if (seq.length) {
+                var last = seq[seq.length - 1];
+                po.push(last);
+                if ((o2.mod === "DP" || o2.mod === "TP") && o2.code === "FO" && seq.length >= 3 && seq[1] !== last) po.push(seq[1]);
+                seq.slice(0, -1).forEach(function (p) { if (p !== last && as.indexOf(p) < 0) as.push(p); });
+              }
+            }
+            dp = o2.mod === "DP" || o2.mod === "TP";
+          }
+          function fielder(pos) { return fielderAt(g, other(t), n, pos) || (String(pos) === "1" ? tu.lanzador : null); }
+          function credit(pos, f) {
+            var pl = fielder(pos), o = pl ? player(pl, date) : null, ro = pl && FT ? rosterOf(FT, pl, date) : null;
+            if (o) o.def[f]++;
+            if (FT) FT.def[f]++;
+            if (f === "E") { if (ro) ro.E++; if (o && o.games[gid]) o.games[gid].E++; }
+          }
+          po.forEach(function (p) { credit(p, "PO"); });
+          as.forEach(function (p) { credit(p, "A"); });
+          if (dp) {
+            var who = po.concat(as).filter(function (p, i, a) { return a.indexOf(p) === i; });
+            who.forEach(function (p) { var pl = fielder(p), o = pl ? player(pl, date) : null; if (o) o.def.DP++; });
+            if (FT) FT.def.DP++;
+          }
+          tu.errores.forEach(function (e) { credit(e.pos, "E"); });
+        });
+      });
+    });
+    return { P: P, T: T, n: list.length, unf: nUnf };
+  }
+
+  // ---------- Tarjetas (misma maqueta que la referencia aprobada) ----------
+  var CARD_LOGO = '<svg viewBox="0 0 200 200" aria-hidden="true"><circle cx="100" cy="100" r="100" fill="#8B3B18"/><g fill="none" stroke="#FFF" stroke-width="4" stroke-linecap="round"><path d="M22 60 L70 93"/><path d="M178 60 L130 93"/><path d="M53 93 H83 L78 132 H32 Z"/><path d="M117 93 H147 L168 132 H122 Z"/></g><path d="M93 107 H107 V111 L100 116 L93 111 Z" fill="#FFF"/></svg>';
+  function brandHTML() { return '<div class="sc-brand">' + CARD_LOGO + "<span>Scorer</span></div>"; }
+  function todayTxt() { var d = new Date(); return ("0" + d.getDate()).slice(-2) + "/" + ("0" + (d.getMonth() + 1)).slice(-2) + "/" + d.getFullYear(); }
+  function tableHTML(heads, rows, opts) {
+    opts = opts || {};
+    var h = "<table><thead><tr>";
+    heads.forEach(function (x) { h += "<th" + (x.l ? ' class="l"' : "") + ">" + x.h + "</th>"; });
+    h += "</tr></thead><tbody>";
+    rows.forEach(function (r) {
+      h += "<tr" + (r.cls ? ' class="' + r.cls + '"' : "") + ">";
+      r.cells.forEach(function (v, i) {
+        var cl = [];
+        if (heads[i] && heads[i].l) cl.push("l");
+        if (r.hi && r.hi[i]) cl.push("hi");
+        if (r.cc && r.cc[i]) cl.push(r.cc[i]);
+        h += "<td" + (cl.length ? ' class="' + cl.join(" ") + '"' : "") + ">" + v + "</td>";
+      });
+      h += "</tr>";
+    });
+    return h + "</tbody></table>";
+  }
+  var BAT_COLS = ["PA", "AB", "H", "1B", "2B", "3B", "HR", "R", "RBI", "BB", "HbP", "K", "SB", "SH", "SF", "LOB"];
+  function trioHTML(b) {
+    var tb = b["1B"] + 2 * b["2B"] + 3 * b["3B"] + 4 * b.HR;
+    return '<div class="sc-trio">' +
+      '<div><span class="k sc-cond">AVG</span><b class="sc-cond">' + pct(b.H, b.AB) + "</b><p>Hits por cada turno oficial</p></div>" +
+      '<div><span class="k sc-cond">OBP</span><b class="sc-cond">' + pct(b.H + b.BB + b.HbP, b.AB + b.BB + b.HbP + b.SF) + "</b><p>Veces que llega a base por turno</p></div>" +
+      '<div><span class="k sc-cond">SLG</span><b class="sc-cond">' + pct(tb, b.AB) + "</b><p>Bases conseguidas por turno oficial</p></div></div>";
+  }
+  function batTable(b) {
+    return tableHTML(BAT_COLS.map(function (k) { return { h: k }; }), [{ cells: BAT_COLS.map(function (k) { return b[k]; }) }]);
+  }
+  function miniHTML(d) {
+    return '<div class="sc-mini"><div><b class="sc-cond">' + d.PO + "</b><span>PO</span></div><div><b class=\"sc-cond\">" + d.A +
+      "</b><span>A</span></div><div><b class=\"sc-cond\">" + d.E + "</b><span>E</span></div><div><b class=\"sc-cond\">" + d.DP + "</b><span>DP</span></div></div>";
+  }
+  function sprayHTML(pts) {
+    var s = '<svg viewBox="0 12 300 243" xmlns="http://www.w3.org/2000/svg">' +
+      '<path d="M150,245 L1.5,96.5 A210,210 0 0,1 298.5,96.5 Z" fill="#f1f1f1" stroke="#000" stroke-width="2"/>' +
+      '<path d="M75.8,170.8 A105.0,105.0 0 0,1 224.2,170.8" fill="none" stroke="#bdbdbd" stroke-width="1.5"/>' +
+      '<path d="M150,245 L194.5,200.5 L150.0,155.9 L105.5,200.5 Z" fill="none" stroke="#000" stroke-width="1.5"/>';
+    function xy(p) {
+      var r = p.type === "hr" ? 1.06 : Math.min(p.r, 0.98), a = Math.max(-0.78, Math.min(0.78, p.a));
+      return [150 + Math.sin(a) * r * 210, 245 - Math.cos(a) * r * 210];
+    }
+    pts.filter(function (p) { return p.type === "out"; }).forEach(function (p) { var q = xy(p); s += '<circle cx="' + f1(q[0]) + '" cy="' + f1(q[1]) + '" r="5" fill="#fff" stroke="#000" stroke-width="1.8"/>'; });
+    pts.filter(function (p) { return p.type === "sac"; }).forEach(function (p) { var q = xy(p); s += '<circle cx="' + f1(q[0]) + '" cy="' + f1(q[1]) + '" r="4.5" fill="#8a8a8a"/>'; });
+    pts.filter(function (p) { return p.type === "hit" || p.type === "hr"; }).forEach(function (p) { var q = xy(p); s += '<circle cx="' + f1(q[0]) + '" cy="' + f1(q[1]) + '" r="6" fill="#e0457b" stroke="#fff" stroke-width="1.2"/>'; });
+    return s + "</svg>";
+  }
+  function posSummary(pos) {
+    return Object.keys(pos).sort(function (a, b) { return pos[b] - pos[a] || a - b; })
+      .map(function (k) { return (POS_ABBR[k] || k) + " (" + pos[k] + ")"; }).join(", ") || "—";
+  }
+  function topPos(pos) {
+    var ks = Object.keys(pos).sort(function (a, b) { return pos[b] - pos[a] || a - b; });
+    return ks.length ? POS_ABBR[ks[0]] || ks[0] : "";
+  }
+  function fild(d) { return pct(d.PO + d.A, d.PO + d.A + d.E); }
+
+  function playerCard(o, S) {
+    var gs = Object.keys(o.games).map(function (k) { return o.games[k]; }).sort(function (a, b) { return a.date - b.date; });
+    var teams = Object.keys(o.teams).sort(function (a, b) { return o.teams[b] - o.teams[a]; }).map(function (k) { return S.T[k] ? S.T[k].nombre : ""; }).filter(Boolean);
+    var sub = [teams.join(", ") || "Sin equipo", gs.length + (gs.length === 1 ? " partido" : " partidos"), dRange(gs[0] && gs[0].date, gs.length && gs[gs.length - 1].date)].filter(Boolean).join(" · ");
+    var h = '<div class="sc-card"><div class="sc-head"><div class="sc-tag sc-cond"><small>#</small>' + esc(o.dorsal || "–") + "</div>" +
+      '<div class="sc-who"><h1 class="sc-cond">' + esc(o.nombre) + "</h1><p>" + esc(sub) + "</p></div>" + brandHTML() + "</div>";
+    h += '<div class="sc-sec"><h2 class="sc-cond">Bateo</h2>' + trioHTML(o.bat) + "</div>";
+    h += '<div class="sc-sec">' + batTable(o.bat) + "</div>";
+    h += '<div class="sc-cols"><div class="sc-sec"><h2 class="sc-cond">Mapa de batazos</h2><div class="sc-spray">' + sprayHTML(o.spray) +
+      '<div class="sc-legend"><span><i style="background:#e0457b"></i>Hit</span><span><i style="border:1.4pt solid #000"></i>Out, error o FC</span><span><i style="background:#8a8a8a"></i>Sacrificio</span></div></div>' +
+      '<h2 class="sc-cond" style="margin-top:3.5mm">Defensa</h2>' + miniHTML(o.def) +
+      '<p class="sc-pos">Fildeo <strong>' + fild(o.def) + "</strong> · Posiciones: " + esc(posSummary(o.pos)) + "</p></div>";
+    h += '<div class="sc-sec" style="padding-left:0">';
+    if (o.pit.used) {
+      h += '<h2 class="sc-cond">Pitcheo</h2>' + tableHTML(["IP", "H", "R", "ER", "BB", "K", "HR"].map(function (k) { return { h: k }; }),
+        [{ cells: [ipFmt(o.pit.outs), o.pit.H, o.pit.R, o.pit.ER, o.pit.BB, o.pit.K, o.pit.HR] }]);
+      h += '<h2 class="sc-cond" style="margin-top:3.5mm">Partido a partido</h2>';
+    } else h += '<h2 class="sc-cond">Partido a partido</h2>';
+    var tot = { AB: 0, H: 0, R: 0, RBI: 0, X: 0, E: 0 };
+    var rows = gs.map(function (gm) {
+      tot.AB += gm.AB; tot.H += gm.H; tot.R += gm.R; tot.RBI += gm.RBI; tot.X += gm.XBH.length; tot.E += gm.E;
+      return { cells: [dShort(gm.date), gm.campo + " " + esc(gm.rival), gm.AB + "–" + gm.H, gm.R, gm.RBI, gm.XBH.length ? gm.XBH.join(", ") : "—", gm.E] };
+    });
+    rows.push({ cls: "tot", cells: ["Total", "", tot.AB + "–" + tot.H, tot.R, tot.RBI, tot.X, tot.E] });
+    h += tableHTML([{ h: "Fecha", l: 1 }, { h: "Rival", l: 1 }, { h: "AB–H" }, { h: "R" }, { h: "RBI" }, { h: "XBH" }, { h: "E" }], rows);
+    h += "</div></div>";
+    h += '<div class="sc-foot"><span>PA: veces al bate. AB: turnos oficiales (sin BB, HbP ni sacrificios). XBH: dobles, triples y HR.</span><span>Generado con Scorer el ' + todayTxt() + "</span></div></div>";
+    return h;
+  }
+
+  function teamCard(o, S) {
+    var nG = o.games.length, recs = o.results.slice().sort(function (a, b) { return a.date - b.date; });
+    var w = 0, l = 0, rf = 0, ra = 0;
+    recs.forEach(function (r) { if (r.rf > r.ra) w++; else if (r.rf < r.ra) l++; rf += r.rf; ra += r.ra; });
+    var dates = [];
+    games.forEach(function (rec) { if (o.games.indexOf(rec.id) >= 0) dates.push(gameDate(rec)); });
+    dates.sort(function (a, b) { return a - b; });
+    var unf = nG - recs.length;
+    var sub = nG + (nG === 1 ? " partido" : " partidos") + (unf ? " (" + unf + " sin terminar)" : "") + (dates.length ? " · " + dRange(dates[0], dates[dates.length - 1]) : "");
+    var nameSize = o.nombre.length > 12 ? 13 : o.nombre.length > 8 ? 16 : 20;
+    var h = '<div class="sc-card"><div class="sc-head"><div class="sc-tag sc-cond" style="font-size:' + nameSize + 'pt">' + esc(o.nombre) + "</div>" +
+      '<div class="sc-who"><h1 class="sc-cond">Todos los partidos</h1><p>' + esc(sub) + "</p></div>" +
+      '<div class="sc-rec sc-cond"><div><b>' + w + "–" + l + "</b><span>G–P</span></div><div><b>" + rf + "</b><span>a favor</span></div><div><b>" + ra + "</b><span>en contra</span></div></div>" + brandHTML() + "</div>";
+    // Resultados en dos columnas
+    var heads = [{ h: "Fecha", l: 1 }, { h: "Rival", l: 1 }, { h: "Campo" }, { h: "Marcador" }, { h: "" }];
+    function resRows(arr) {
+      return arr.map(function (r) {
+        var res = r.rf > r.ra ? "G" : r.rf < r.ra ? "P" : "E", cls = r.rf > r.ra ? "w" : "lo";
+        return { cells: [dShort(r.date), esc(r.rival), r.campo, r.rf + "–" + r.ra + (r.extra ? " (" + r.extra + ")" : ""), res], cc: { 3: cls, 4: cls } };
+      });
+    }
+    var half = Math.ceil(recs.length / 2);
+    if (recs.length) {
+      h += '<div class="sc-cols"><div class="sc-sec"><h2 class="sc-cond">Resultados</h2>' + tableHTML(heads, resRows(recs.slice(0, half))) + "</div>" +
+        '<div class="sc-sec" style="padding-left:2mm"><h2 class="sc-cond">&nbsp;</h2>' + (recs.length > half ? tableHTML(heads, resRows(recs.slice(half))) : "") + "</div></div>";
+    } else {
+      h += '<div class="sc-sec"><h2 class="sc-cond">Resultados</h2><p class="sc-pos">Ningún partido marcado como terminado.</p></div>';
+    }
+    // Carreras por entrada
+    if (o.maxInn) {
+      var mx = 0, i, tf = 0, ta = 0;
+      for (i = 1; i <= o.maxInn; i++) { mx = Math.max(mx, o.innFor[i] || 0, o.innAg[i] || 0); tf += o.innFor[i] || 0; ta += o.innAg[i] || 0; }
+      var tb = '<table class="sc-inn"><thead><tr><th class="l">Entrada</th>';
+      for (i = 1; i <= o.maxInn; i++) tb += "<th>" + i + "</th>";
+      tb += "<th>TOT</th></tr></thead><tbody>";
+      [["A favor", o.innFor, "", tf], ["En contra", o.innAg, " ag", ta]].forEach(function (row) {
+        tb += '<tr><td class="l" rowspan="2">' + row[0] + "</td>";
+        for (i = 1; i <= o.maxInn; i++) tb += '<td class="sc-barcell"><div class="sc-b' + row[2] + '" style="height:' + (mx ? Math.max(0.5, 12 * (row[1][i] || 0) / mx) : 0.5).toFixed(1) + 'mm"></div></td>';
+        tb += '<td rowspan="2" class="w">' + row[3] + "</td></tr><tr>";
+        for (i = 1; i <= o.maxInn; i++) tb += '<td class="sc-n">' + (row[1][i] || 0) + "</td>";
+        tb += "</tr>";
+      });
+      tb += "</tbody></table>";
+      h += '<div class="sc-sec"><h2 class="sc-cond">Carreras por entrada</h2>' + tb +
+        '<div class="sc-legend"><span><i style="background:#000;border-radius:.5mm"></i>A favor</span><span><i style="background:#e0457b;border-radius:.5mm"></i>En contra</span></div></div>';
+    }
+    h += '<div class="sc-sec"><h2 class="sc-cond">Bateo del equipo</h2>' + trioHTML(o.bat) + '<div style="height:1.6mm"></div>' + batTable(o.bat) + "</div>";
+    // Líderes y plantilla
+    var minAB = Math.round(2.5 * nG);
+    var ros = Object.keys(o.roster).map(function (k) { return o.roster[k]; });
+    ros.forEach(function (r) {
+      r.g = Object.keys(r.G).length;
+      r.avg = r.bat.AB ? r.bat.H / r.bat.AB : 0;
+      r.qual = r.bat.AB >= minAB;
+      var cnt = {}, best = null;
+      r.rows.forEach(function (x) { cnt[x] = (cnt[x] || 0) + 1; if (best === null || cnt[x] > cnt[best] || (cnt[x] === cnt[best] && x < best)) best = x; });
+      r.ord = best === null ? 99 : best;
+    });
+    ros.sort(function (a, b) { return a.ord - b.ord || b.bat.PA - a.bat.PA; });
+    function leader(val, ok) {
+      var best = -1, names = [];
+      ros.forEach(function (r) { if (ok && !ok(r)) return; var v = val(r); if (v > best) { best = v; names = [r.nombre]; } else if (v === best) names.push(r.nombre); });
+      return best > 0 ? { v: best, n: names.length > 2 ? "Empate (" + names.length + ")" : names.join(" y ") } : { v: null, n: "—" };
+    }
+    var L = [
+      ["AVG", leader(function (r) { return r.avg; }, function (r) { return r.qual; }), true],
+      ["H", leader(function (r) { return r.bat.H; })], ["HR", leader(function (r) { return r.bat.HR; })],
+      ["RBI", leader(function (r) { return r.bat.RBI; })], ["SB", leader(function (r) { return r.bat.SB; })]
+    ];
+    h += '<div class="sc-sec"><h2 class="sc-cond">Líderes <span class="sc-note">AVG: mínimo ' + minAB + ' AB</span></h2><div class="sc-leaders">' +
+      L.map(function (x) {
+        var v = x[1].v === null ? "—" : x[2] ? pct(x[1].v * 1000, 1000) : x[1].v;
+        return '<div><span class="k sc-cond">' + x[0] + '</span><b class="sc-cond">' + v + "</b><span>" + esc(x[1].n) + "</span></div>";
+      }).join("") + "</div></div>";
+    var cols = ["#", "Jugador", "POS", "G", "PA", "AB", "H", "HR", "R", "RBI", "SB", "AVG", "OBP", "E"];
+    var maxOf = {};
+    ["PA", "AB", "H", "HR", "R", "RBI", "SB"].forEach(function (k) {
+      maxOf[k] = Math.max.apply(null, ros.map(function (r) { return r.bat[k]; }).concat([0]));
+    });
+    var maxAvg = Math.max.apply(null, ros.filter(function (r) { return r.qual; }).map(function (r) { return r.avg; }).concat([0]));
+    var tE = 0, prow = ros.map(function (r) {
+      var b = r.bat; tE += r.E;
+      var hi = {};
+      [["PA", 4], ["AB", 5], ["H", 6], ["HR", 7], ["R", 8], ["RBI", 9], ["SB", 10]].forEach(function (x) {
+        var v = b[x[0]];
+        if (v > 0 && v === maxOf[x[0]]) hi[x[1]] = 1;
+      });
+      if (r.qual && r.avg > 0 && r.avg === maxAvg) hi[11] = 1;
+      return { hi: hi, cells: [esc(r.dorsal), esc(r.nombre), topPos(r.pos), r.g, b.PA, b.AB, b.H, b.HR, b.R, b.RBI, b.SB, pct(b.H, b.AB), pct(b.H + b.BB + b.HbP, b.AB + b.BB + b.HbP + b.SF), r.E] };
+    });
+    var B = o.bat;
+    prow.push({ cls: "tot", cells: ["", "Equipo", "", nG, B.PA, B.AB, B.H, B.HR, B.R, B.RBI, B.SB, pct(B.H, B.AB), pct(B.H + B.BB + B.HbP, B.AB + B.BB + B.HbP + B.SF), tE] });
+    h += '<div class="sc-sec"><h2 class="sc-cond">Plantilla</h2>' + tableHTML(cols.map(function (c) { return { h: c, l: c === "Jugador" }; }), prow) + "</div>";
+    // Defensa y lanzadores
+    var pr = o.pitOrder.map(function (k) { return o.pitchers[k]; }), pt = { outs: 0, H: 0, R: 0, ER: 0, BB: 0, K: 0, HR: 0 };
+    var prr = pr.map(function (q) {
+      Object.keys(pt).forEach(function (k) { pt[k] += q[k]; });
+      return { cells: [(q.dorsal ? "#" + esc(q.dorsal) + " " : "") + esc(q.nombre), ipFmt(q.outs), q.H, q.R, q.ER, q.BB, q.K, q.HR] };
+    });
+    prr.push({ cls: "tot", cells: ["Total", ipFmt(pt.outs), pt.H, pt.R, pt.ER, pt.BB, pt.K, pt.HR] });
+    h += '<div class="sc-cols"><div class="sc-sec"><h2 class="sc-cond">Defensa</h2>' + miniHTML(o.def) + '<p class="sc-pos">Fildeo del equipo <strong>' + fild(o.def) + "</strong></p></div>" +
+      '<div class="sc-sec" style="padding-left:0"><h2 class="sc-cond">Lanzadores</h2>' +
+      tableHTML([{ h: "Lanzador", l: 1 }, { h: "IP" }, { h: "H" }, { h: "R" }, { h: "ER" }, { h: "BB" }, { h: "K" }, { h: "HR" }], prr) + "</div></div>";
+    h += '<div class="sc-foot"><span>En rosa, el líder de cada columna de la plantilla.</span><span>Generado con Scorer el ' + todayTxt() + "</span></div></div>";
+    return h;
+  }
+
+  // ---------- Pantalla «Estadísticas» e informe ----------
+  var statsData = null, statsTab = "jug";
+  var reportEl = document.getElementById("report"), repBody = document.getElementById("repBody");
+  function showStats() {
+    flushSave();
+    statsData = computeAll();
+    enterLevel("stats");
+    renderStats();
+  }
+  function renderStats() {
+    var S = statsData, h = [];
+    document.getElementById("statsHint").textContent = S.n ? S.n + (S.n === 1 ? " partido" : " partidos") + " en este móvil" + (S.unf ? " · " + S.unf + " sin terminar" : "") : "Todavía no hay partidos anotados";
+    document.querySelectorAll("#statsView .seg-b").forEach(function (b) { b.setAttribute("aria-selected", b.getAttribute("data-st") === statsTab ? "true" : "false"); });
+    if (statsTab === "jug") {
+      Object.keys(S.P).map(function (k) { return S.P[k]; }).sort(function (a, b) { return byName(a, b); }).forEach(function (o) {
+        var n = Object.keys(o.games).length, tms = Object.keys(o.teams).sort(function (a, b) { return o.teams[b] - o.teams[a]; }).map(function (k) { return S.T[k] ? S.T[k].nombre : ""; }).filter(Boolean);
+        h.push('<div class="game"><button type="button" class="game-main" data-rep="p:' + esc(o.key) + '"><span class="game-text"><span class="game-title">' + esc(o.nombre) + "</span>" +
+          '<span class="game-sub">' + esc([o.dorsal ? "#" + o.dorsal : "", tms.join(", "), n + (n === 1 ? " partido" : " partidos")].filter(Boolean).join(" · ")) + "</span></span></button></div>");
+      });
+    } else {
+      Object.keys(S.T).map(function (k) { return S.T[k]; }).sort(function (a, b) { return byName(a, b); }).forEach(function (o) {
+        var w = 0, l = 0;
+        o.results.forEach(function (r) { if (r.rf > r.ra) w++; else if (r.rf < r.ra) l++; });
+        h.push('<div class="game"><button type="button" class="game-main" data-rep="t:' + esc(o.key) + '"><span class="game-text"><span class="game-title">' + esc(o.nombre) + "</span>" +
+          '<span class="game-sub">' + o.games.length + (o.games.length === 1 ? " partido" : " partidos") + " · balance " + w + "–" + l + "</span></span></button></div>");
+      });
+    }
+    if (!h.length) h.push('<div class="list-empty"><p>Anota algún partido para ver aquí los informes.</p></div>');
+    document.getElementById("statsBody").innerHTML = h.join("");
+  }
+  function openReport(ref) {
+    var S = statsData, kind = ref.slice(0, 1), key = ref.slice(2), o = kind === "p" ? S.P[key] : S.T[key];
+    if (!o) return;
+    document.getElementById("repTitle").textContent = (kind === "p" ? "Informe de jugador: " : "Informe de equipo: ") + o.nombre;
+    repBody.innerHTML = '<div class="sc-scale">' + (kind === "p" ? playerCard(o, S) : teamCard(o, S)) + "</div>";
+    reportEl.hidden = false;
+    fitReport();
+  }
+  // Zoom y desplazamiento del informe, como en la hoja: pellizcar, arrastrar y «Ajustar»
+  var rz = { s: 1, x: 0, y: 0, fit: 1 }, rzPtr = {}, rzG = null;
+  function rzCard() { return repBody.querySelector(".sc-card"); }
+  function rzClamp() {
+    var card = rzCard(); if (!card) return;
+    var W = repBody.clientWidth, H = repBody.clientHeight, w = card.offsetWidth * rz.s, h = card.offsetHeight * rz.s, m = 12;
+    rz.x = w + 2 * m <= W ? (W - w) / 2 : Math.min(m, Math.max(W - w - m, rz.x));
+    rz.y = h + 2 * m <= H ? m : Math.min(m, Math.max(H - h - m, rz.y));
+  }
+  function rzApply() {
+    var sc = repBody.querySelector(".sc-scale"); if (!sc) return;
+    rzClamp();
+    sc.style.transform = "translate(" + rz.x + "px," + rz.y + "px) scale(" + rz.s + ")";
+  }
+  function rzZoomAt(s, cx, cy) {
+    var r = repBody.getBoundingClientRect(), px = cx - r.left, py = cy - r.top;
+    s = Math.max(rz.fit * 0.8, Math.min(4, s));
+    rz.x = px - (px - rz.x) * s / rz.s; rz.y = py - (py - rz.y) * s / rz.s; rz.s = s;
+    rzApply();
+  }
+  function fitReport() {
+    var card = rzCard(); if (!card || reportEl.hidden) return;
+    rz.fit = Math.min(1, (repBody.clientWidth - 24) / card.offsetWidth);
+    rz.s = rz.fit; rz.x = 0; rz.y = 12;
+    rzApply();
+  }
+  function rzPts() { return Object.keys(rzPtr).map(function (k) { return rzPtr[k]; }); }
+  repBody.addEventListener("pointerdown", function (e) {
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    try { repBody.setPointerCapture(e.pointerId); } catch (err) { /* sin captura */ }
+    rzPtr[e.pointerId] = { x: e.clientX, y: e.clientY };
+    var p = rzPts();
+    rzG = { s0: rz.s, x0: rz.x, y0: rz.y, p0: p.map(function (q) { return { x: q.x, y: q.y }; }) };
+    if (p.length >= 2) { rzG.d0 = Math.hypot(p[0].x - p[1].x, p[0].y - p[1].y) || 1; rzG.m0 = { x: (p[0].x + p[1].x) / 2, y: (p[0].y + p[1].y) / 2 }; }
+  });
+  repBody.addEventListener("pointermove", function (e) {
+    if (!rzPtr[e.pointerId] || !rzG) return;
+    rzPtr[e.pointerId] = { x: e.clientX, y: e.clientY };
+    var p = rzPts(), r = repBody.getBoundingClientRect();
+    if (p.length >= 2 && rzG.d0) {
+      var d = Math.hypot(p[0].x - p[1].x, p[0].y - p[1].y), m = { x: (p[0].x + p[1].x) / 2, y: (p[0].y + p[1].y) / 2 };
+      var s = Math.max(rz.fit * 0.8, Math.min(4, rzG.s0 * d / rzG.d0));
+      var cx = (rzG.m0.x - r.left - rzG.x0) / rzG.s0, cy = (rzG.m0.y - r.top - rzG.y0) / rzG.s0;
+      rz.s = s; rz.x = (m.x - r.left) - cx * s; rz.y = (m.y - r.top) - cy * s;
+    } else if (p.length === 1) {
+      rz.x = rzG.x0 + (p[0].x - rzG.p0[0].x); rz.y = rzG.y0 + (p[0].y - rzG.p0[0].y);
+    }
+    rzApply();
+  });
+  function rzEnd(e) {
+    delete rzPtr[e.pointerId];
+    var p = rzPts();
+    rzG = p.length ? { s0: rz.s, x0: rz.x, y0: rz.y, p0: p.map(function (q) { return { x: q.x, y: q.y }; }) } : null;
+  }
+  repBody.addEventListener("pointerup", rzEnd);
+  repBody.addEventListener("pointercancel", rzEnd);
+  repBody.addEventListener("wheel", function (e) {
+    e.preventDefault();
+    if (e.ctrlKey || e.metaKey) rzZoomAt(rz.s * Math.exp(-e.deltaY * 0.01), e.clientX, e.clientY);
+    else { rz.x -= e.deltaX; rz.y -= e.deltaY; rzApply(); }
+  }, { passive: false });
+  repBody.addEventListener("dblclick", function (e) {
+    if (rz.s > rz.fit * 1.05) fitReport(); else rzZoomAt(rz.fit * 2, e.clientX, e.clientY);
+  });
+  document.getElementById("repFit").addEventListener("click", fitReport);
+  function closeReport() { reportEl.hidden = true; repBody.innerHTML = ""; }
+  window.addEventListener("resize", fitReport);
+  document.getElementById("homeStats").addEventListener("click", showStats);
+  document.getElementById("statsBack").addEventListener("click", backToHome);
+  document.getElementById("repBack").addEventListener("click", closeReport);
+  document.querySelectorAll("#statsView .seg-b").forEach(function (b) {
+    b.addEventListener("click", function () { statsTab = b.getAttribute("data-st"); renderStats(); });
+  });
+  document.getElementById("statsBody").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-rep]");
+    if (b) openReport(b.getAttribute("data-rep"));
+  });
 
   // ---------- Inicio ----------
   initApp();
